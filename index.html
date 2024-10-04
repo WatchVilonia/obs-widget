@@ -75,10 +75,10 @@
             const dayOfWeek = daysOfWeek[now.getDay()];
 
             // Displaying day of the week, date, and time on the same line
-            document.getElementById('day-time').textContent = `${dayOfWeek}, ${month}/${day}/${year} - ${hours}:${minutes} ${amPm}`;
+            document.getElementById('day-time').textContent = `${dayOfWeek}, ${month}/${day}/${year} - ${hours}:${minutes}:${now.getSeconds().toString().padStart(2, '0')} ${amPm}`;
 
             // Displaying time with AM/PM
-            document.getElementById('time').textContent = `${hours}:${minutes} ${amPm}`;
+            document.getElementById('time').textContent = `${hours}:${minutes}:${now.getSeconds().toString().padStart(2, '0')} ${amPm}`;
         }
 
         // Function to auto-refresh the page every minute
