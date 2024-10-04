@@ -81,10 +81,10 @@
         }
 
         // Function to auto-refresh the page every minute
+        // Function to refresh clock data every minute without full page reload
         function autoRefresh() {
-            setTimeout(() => {
-                location.reload();
-            }, 60000); // Refresh every 60 seconds
+            setInterval(updateClock, 60000); // Refresh every 60 seconds
+        }, 60000); // Refresh every 60 seconds
         }
 
         // Update the clock every second
