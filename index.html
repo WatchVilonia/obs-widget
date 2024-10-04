@@ -42,11 +42,31 @@
             text-decoration: none;
         }
     </style>
-</head>
+<script>
+        // Fetch and update weather data using a free public API
+        async function updateWeather() {
+            try {
+                const response = await fetch('https://wttr.in/Vilonia?format=%t+%c');
+                if (response.ok) {
+                    const data = await response.text();
+                    document.getElementById('weather').textContent = `Weather in Vilonia: ${data}`;
+                } else {
+                    console.error('Failed to fetch weather data');
+                }
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+        
+        setInterval(updateWeather, 60000); // Refresh weather every 60 seconds
+        updateWeather(); // Initial call to display weather immediately
+    </script>
+    </head>
 <body>
     <div id="widget">
         <div id="day-time"></div>
-<div id="additional-text"><p>Camera Elevation: ~640' - Vilonia Elevation: 312'<br>Facing True North - City ~4 Miles NNW</p><p>Sponsered by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></p>
+<div id="weather"></div>
+        <div id="additional-text"><p>Camera Elevation: ~640' - Vilonia Elevation: 312'<br>Facing True North - City ~4 Miles NNW</p><p>Sponsered by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></p>
         </div>
     </div>
 
