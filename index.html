@@ -7,12 +7,13 @@
     <style>
         /* Basic styling for the widget */
         #widget {
-            font-family: Arial, sans-serif;
+            font-family: Helvetica, Arial, sans-serif;
             color: #fff;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 10px;
             text-align: center;
+            display: inline-block; /* Ensure the widget dynamically adjusts to content size */
         }
 
         #time {
@@ -22,32 +23,51 @@
         #date {
             font-size: 1.2em;
         }
+
+        #additional-text {
+            font-size: 1em;
+            margin-top: 10px;
+            display: none; /* Currently hidden, can be modified to display content as needed */
+        }
     </style>
 </head>
 <body>
     <div id="widget">
         <div id="time"></div>
         <div id="date"></div>
+        <div id="day"></div>
+        <div id="additional-text">Placeholder for additional text to be displayed if desired.</div>
     </div>
 
     <script>
-        // Function to update the time and date
+        // Function to update the time, date, and day of the week
         function updateClock() {
             const now = new Date();
 
             // Extracting time components
-            const hours = now.getHours().toString().padStart(2, '0');
+            let hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
+            const amPm = hours >= 12 ? 'PM' : 'AM';
+
+            // Convert to 12-hour format
+            hours = hours % 12;
+            hours = hours ? hours : 12; // If hours is 0, set to 12
+            hours = hours.toString().padStart(2, '0');
 
             // Extracting date components
             const day = now.getDate().toString().padStart(2, '0');
             const month = (now.getMonth() + 1).toString().padStart(2, '0');
             const year = now.getFullYear();
 
-            // Displaying time and date
-            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+            // Extracting day of the week
+            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const dayOfWeek = daysOfWeek[now.getDay()];
+
+            // Displaying time, date, and day of the week
+            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds} ${amPm}`;
             document.getElementById('date').textContent = `${month}/${day}/${year}`;
+            document.getElementById('day').textContent = dayOfWeek;
         }
 
         // Update the clock every second
