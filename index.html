@@ -8,8 +8,8 @@
         /* Basic styling for the widget */
         #widget {
             font-family: Helvetica, Arial, sans-serif;
-            color: #fff;
-            background-color: rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.7);
             padding: 10px;
             border-radius: 10px;
             text-align: center;
@@ -25,7 +25,7 @@
         #additional-text {
             font-size: 1em;
             margin-top: 10px;
-            display: block; /* Currently hidden, can be modified to display content as needed */
+            display: none; /* Currently hidden, can be modified to display content as needed */
         }
     </style>
 </head>
@@ -33,7 +33,12 @@
     <div id="widget">
         <div id="day-date" style="font-size: 1.2em;"></div>
         <div id="time"></div>
-        <div id="additional-text">Placeholder for additional text to be displayed if desired.</div>
+        <div id="additional-text" style="display: block;">
+            <p>Sponsered by Arkansas Turf Management<br>
+            Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank" style="color: #ffffff; text-decoration: none;">ArkTurf.com</a></p>
+            <p>Camera Elevation: ~640' - City of Vilonia Elevation: 312'<br>
+            Facing True North - City Aprox. 4 Miles NNW</p>
+        </div>
     </div>
 
     <script>
