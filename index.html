@@ -20,14 +20,8 @@
             font-size: 2em;
         }
 
-        #day {
-            font-size: 1.2em;
-        }
-
-        #date {
-            font-size: 1.2em;
-        }
-
+        
+        
         #additional-text {
             font-size: 1em;
             margin-top: 10px;
@@ -37,8 +31,7 @@
 </head>
 <body>
     <div id="widget">
-        <div id="day"></div>
-        <div id="date"></div>
+        <div id="day-date"></div>
         <div id="time"></div>
         <div id="additional-text">Placeholder for additional text to be displayed if desired.</div>
     </div>
@@ -65,13 +58,10 @@
             const year = now.getFullYear();
 
             // Extracting day of the week
-            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const dayOfWeek = daysOfWeek[now.getDay()];
 
-            // Displaying time, date, and day of the week
-            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds} ${amPm}`;
-            document.getElementById('date').textContent = `${month}/${day}/${year}`;
-            document.getElementById('day').textContent = dayOfWeek;
+            // Displaying day of the week and date on the same line
+            document.getElementById('day-date').textContent = `${dayOfWeek}, ${month}/${day}/${year}`;
         }
 
         // Function to auto-refresh the page every minute
