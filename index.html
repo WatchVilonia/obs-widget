@@ -80,11 +80,9 @@
             document.getElementById('time').textContent = `${hours}:${minutes}:${now.getSeconds().toString().padStart(2, '0')} ${amPm}`;
         }
 
-        // Function to auto-refresh the page every minute
         // Function to refresh clock data every minute without full page reload
         function autoRefresh() {
             setInterval(updateClock, 60000); // Refresh every 60 seconds
-        }, 60000); // Refresh every 60 seconds
         }
 
         // Update the clock every second
