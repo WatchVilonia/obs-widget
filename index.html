@@ -5,39 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OBS Clock Widget</title>
     <style>
-        /* Basic styling for the widget */
+        /* Compact styling for the widget */
         #widget {
             font-family: Helvetica, Arial, sans-serif;
             color: #ffffff;
             background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
+            padding: 8px;
+            border-radius: 8px;
             text-align: center;
-            display: inline-block; /* Ensure the widget dynamically adjusts to content size */
+            display: inline-block;
+            max-width: 300px;
+        }
+
+        #day-time, #additional-text {
+            margin: 5px 0;
         }
 
         #time {
-            font-size: 2em;
+            font-size: 1.5em;
         }
 
-        
-        
-        #additional-text {
+        #day-date {
             font-size: 1em;
-            margin-top: 10px;
-            display: none; /* Currently hidden, can be modified to display content as needed */
+        }
+
+        #additional-text {
+            font-size: 0.9em;
+            display: block;
+        }
+
+        a {
+            color: #ffffff;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
     <div id="widget">
-        <div id="day-date" style="font-size: 1.2em;"></div>
-        <div id="time"></div>
-        <div id="additional-text" style="display: block;">
+        <div id="day-time"></div>
+        <div id="additional-text">
             <p>Sponsered by Arkansas Turf Management<br>
-            Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank" style="color: #ffffff; text-decoration: none;">ArkTurf.com</a></p>
-            <p>Camera Elevation: ~640' - City of Vilonia Elevation: 312'<br>
-            Facing True North - City Aprox. 4 Miles NNW</p>
+            Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></p>
+            <p>Camera Elevation: ~640' - Vilonia Elevation: 312'<br>
+            Facing True North - City ~4 Miles NNW</p>
         </div>
     </div>
 
@@ -49,13 +59,11 @@
             // Extracting time components
             let hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
             const amPm = hours >= 12 ? 'PM' : 'AM';
 
             // Convert to 12-hour format
             hours = hours % 12;
             hours = hours ? hours : 12; // If hours is 0, set to 12
-            hours = hours.toString().padStart(2, '0');
 
             // Extracting date components
             const day = now.getDate().toString().padStart(2, '0');
@@ -63,14 +71,14 @@
             const year = now.getFullYear();
 
             // Extracting day of the week
-            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             const dayOfWeek = daysOfWeek[now.getDay()];
 
-            // Displaying day of the week and date on the same line
-            document.getElementById('day-date').textContent = `${dayOfWeek}, ${month}/${day}/${year}`;
+            // Displaying day of the week, date, and time on the same line
+            document.getElementById('day-time').textContent = `${dayOfWeek}, ${month}/${day}/${year} - ${hours}:${minutes} ${amPm}`;
 
             // Displaying time with AM/PM
-            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds} ${amPm}`;
+            document.getElementById('time').textContent = `${hours}:${minutes} ${amPm}`;
         }
 
         // Function to auto-refresh the page every minute
