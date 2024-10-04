@@ -20,6 +20,10 @@
             font-size: 2em;
         }
 
+        #day {
+            font-size: 1.2em;
+        }
+
         #date {
             font-size: 1.2em;
         }
@@ -33,9 +37,9 @@
 </head>
 <body>
     <div id="widget">
-        <div id="time"></div>
-        <div id="date"></div>
         <div id="day"></div>
+        <div id="date"></div>
+        <div id="time"></div>
         <div id="additional-text">Placeholder for additional text to be displayed if desired.</div>
     </div>
 
@@ -70,9 +74,17 @@
             document.getElementById('day').textContent = dayOfWeek;
         }
 
+        // Function to auto-refresh the page every minute
+        function autoRefresh() {
+            setTimeout(() => {
+                location.reload();
+            }, 60000); // Refresh every 60 seconds
+        }
+
         // Update the clock every second
         setInterval(updateClock, 1000);
         updateClock(); // Initial call to display right away
+        autoRefresh(); // Set up auto-refresh
     </script>
 </body>
 </html>
