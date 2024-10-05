@@ -159,4 +159,51 @@
                     <strong>Wind Direction:</strong> ${windDirection}<br>
                 </div>
                 <div class="pod">
-                    <strong>
+                    <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
+                    <strong>Precipitation Type:</strong> ${precipitationType}<br>
+                    <strong>Cloud Cover:</strong> ${cloudCover}<br>
+                </div>
+                <div class="pod">
+                    <strong>Condition:</strong> ${conditionText}<br>
+                    <strong>Visibility:</strong> ${visibility}<br>
+                    <strong>UV Index:</strong> ${uvIndex}<br>
+                </div>
+                <div class="pod">
+                    <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
+                    <strong>Moon Phase:</strong> ${moonPhase}<br>
+                </div>
+                <div class="pod">
+                    <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
+                    <strong>AQI:</strong> ${aqi}<br>
+                    <strong>Pollen Count:</strong> ${pollenCount}<br>
+                </div>
+            `;
+            document.getElementById('weather').innerHTML = weatherHTML;
+        }
+
+        function getMoonPhaseDescription(phase) {
+            if (phase === 0 || phase === 1) {
+                return 'New Moon';
+            } else if (phase > 0 && phase < 0.25) {
+                return 'Waxing Crescent';
+            } else if (phase === 0.25) {
+                return 'First Quarter';
+            } else if (phase > 0.25 && phase < 0.5) {
+                return 'Waxing Gibbous';
+            } else if (phase === 0.5) {
+                return 'Full Moon';
+            } else if (phase > 0.5 && phase < 0.75) {
+                return 'Waning Gibbous';
+            } else if (phase === 0.75) {
+                return 'Last Quarter';
+            } else {
+                return 'Waning Crescent';
+            }
+        }
+
+        // Update weather every 90 seconds
+        setInterval(updateWeather, 90000);
+        updateWeather(); // Initial call to display weather immediately
+    </script>
+</body>
+</html>
