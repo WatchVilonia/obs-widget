@@ -99,25 +99,23 @@
                     temperature = data.current.temp !== undefined ? `${data.current.temp} °F` : 'N/A';
                     windSpeed = data.current.wind_speed !== undefined ? `${data.current.wind_speed} mph` : 'N/A';
                     humidity = data.current.humidity !== undefined ? `${data.current.humidity} %` : 'N/A';
+                    windChill = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
+                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : '0 mph';
+                    windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
+                    precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
+                    cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
                     conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
-                    uvIndex = data.current.uvi !== undefined ? `${data.current.uvi} (Exposure risk: ${data.current.uvi <= 2 ? 'Low' : data.current.uvi <= 5 ? 'Moderate' : data.current.uvi <= 7 ? 'High' : data.current.uvi <= 10 ? 'Very High' : 'Extreme'})` : 'N/A';
                     visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
+                    uvIndex = data.current.uvi !== undefined ? `${data.current.uvi} (Exposure risk: ${data.current.uvi <= 2 ? 'Low' : data.current.uvi <= 5 ? 'Moderate' : data.current.uvi <= 7 ? 'High' : data.current.uvi <= 10 ? 'Very High' : 'Extreme'})` : 'N/A';
                     if (data.current.sunrise && data.current.sunset) {
                         sunrise = `${new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
                         sunset = `${new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
                     }
-                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : '0 mph';
+                    moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
                     pressure = data.current.pressure !== undefined ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
                     if (data.current.pressure !== undefined) {
                         pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
                     }
-                    cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
-                    precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
-                    rainVolume = data.daily[0].rain !== undefined ? `${data.daily[0].rain.toFixed(2)} mm` : '0 mm';
-                    snowVolume = data.daily[0].snow !== undefined ? `${data.daily[0].snow.toFixed(2)} mm` : '0 mm';
-                    windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
-                    moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
-                    windChill = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
@@ -145,22 +143,20 @@
             let weatherHTML = `
                 <strong>Weather in Vilonia:</strong><br>
                 Temperature: ${temperature}<br>
-                Condition: ${conditionText}<br>
-                Feels Like: ${windChill}<br>
                 Humidity: ${humidity}<br>
-                Cloud Cover: ${cloudCover}<br>
+                Feels Like: ${windChill}<br>
                 Wind Speed: ${windSpeed}<br>
                 Wind Gust: ${windGust}<br>
                 Wind Direction: ${windDirection}<br>
-                Pressure: ${pressure} (${pressureDescription})<br>
-                UV Index: ${uvIndex}<br>
+                Precipitation Probability: ${precipitationProbability}<br>
+                Cloud Cover: ${cloudCover}<br>
+                Condition: ${conditionText}<br>
                 Visibility: ${visibility}<br>
-                Sunrise: ${sunrise}, Sunset: ${sunset}<br>
+                UV Index: ${uvIndex}<br>
+                Sunrise/Sunset: Sunrise: ${sunrise}, Sunset: ${sunset}<br>
                 Moon Phase: ${moonPhase}<br>
-                Precipitation Probability: ${precipitationProbability}
+                Pressure: ${pressure} (${pressureDescription})
             `;
-            if (rainVolume !== '0 mm') weatherHTML += `<br>Rain Volume: ${rainVolume}`;
-            if (snowVolume !== '0 mm') weatherHTML += `<br>Snow Volume: ${snowVolume}`;
             document.getElementById('weather').innerHTML = weatherHTML;
         }
 
