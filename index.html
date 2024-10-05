@@ -40,19 +40,42 @@
         #weather {
             margin-top: 10px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
         }
 
         .weather-section {
-            padding: 8px;
+            padding: 12px;
             background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weather-section-icon {
+            font-size: 1.8em;
         }
 
         a {
             color: #ffffff;
             text-decoration: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #4caf50;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -125,7 +148,7 @@
                     const data = await response.json();
                     temperature = `${data.current.temp ?? 'N/A'} °F`;
                     windSpeed = `${data.current.wind_speed ?? 'N/A'} mph`;
-                    humidity = `${data.current.humidity ?? 'N/A'} %`;
+                    humidity = data.current.humidity !== undefined ? data.current.humidity : 'N/A';
                     conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
                     uvIndex = data.current.uvi ?? 'N/A';
                     visibility = data.current.visibility ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
@@ -171,38 +194,55 @@
 
             let weatherHTML = `
                 <div class="weather-section">
-                    <strong>General Conditions:</strong><br>
-                    Temperature: ${temperature}<br>
-                    Condition: ${conditionText}<br>
-                    Feels Like: ${windChill}<br>
-                    Humidity: ${humidity}<br>
-                    Cloud Cover: ${cloudCover}<br>
+                    <span class="weather-section-icon">🌡️</span>
+                    <div>
+                        <strong>General Conditions:</strong><br>
+                        Temperature: ${temperature}<br>
+                        Condition: ${conditionText}<br>
+                        Feels Like: ${windChill}<br>
+                        Humidity: ${humidity}%<br>
+                        Cloud Cover: ${cloudCover}
+                        <div class="progress-bar"><div class="progress-bar-inner" style="width: ${humidity}%;"></div></div>
+                    </div>
                 </div>
                 <div class="weather-section">
-                    <strong>Wind Information:</strong><br>
-                    Wind Speed: ${windSpeed}<br>
-                    Wind Gust: ${windGust}<br>
-                    Wind Direction: ${windDirection}
+                    <span class="weather-section-icon">💨</span>
+                    <div>
+                        <strong>Wind Information:</strong><br>
+                        Wind Speed: ${windSpeed}<br>
+                        Wind Gust: ${windGust}<br>
+                        Wind Direction: ${windDirection}
+                    </div>
                 </div>
                 <div class="weather-section">
-                    <strong>Pressure and Visibility:</strong><br>
-                    Pressure: ${pressure} (${pressureDescription})<br>
-                    Visibility: ${visibility}
+                    <span class="weather-section-icon">⚖️</span>
+                    <div>
+                        <strong>Pressure and Visibility:</strong><br>
+                        Pressure: ${pressure} (${pressureDescription})<br>
+                        Visibility: ${visibility}
+                    </div>
                 </div>
                 <div class="weather-section">
-                    <strong>Sun and Moon:</strong><br>
-                    Sunrise: ${sunrise}<br>
-                    Sunset: ${sunset}<br>
-                    Moon Phase: ${moonPhase}
+                    <span class="weather-section-icon">🌅</span>
+                    <div>
+                        <strong>Sun and Moon:</strong><br>
+                        Sunrise: ${sunrise}<br>
+                        Sunset: ${sunset}<br>
+                        Moon Phase: ${moonPhase}
+                    </div>
                 </div>
                 <div class="weather-section">
-                    <strong>UV Index and Precipitation:</strong><br>
-                    UV Index: ${uvIndex}<br>
-                    Precipitation Probability: ${precipitationProbability}
+                    <span class="weather-section-icon">☀️</span>
+                    <div>
+                        <strong>UV Index and Precipitation:</strong><br>
+                        UV Index: ${uvIndex}<br>
+                        Precipitation Probability: ${precipitationProbability}
+                        <div class="progress-bar"><div class="progress-bar-inner" style="width: ${precipitationProbability};"></div></div>
+                    </div>
                 </div>
             `;
-            if (rainVolume) weatherHTML += `<div class="weather-section">Rain Volume: ${rainVolume}</div>`;
-            if (snowVolume) weatherHTML += `<div class="weather-section">Snow Volume: ${snowVolume}</div>`;
+            if (rainVolume) weatherHTML += `<div class="weather-section"><span class="weather-section-icon">🌧️</span> Rain Volume: ${rainVolume}</div>`;
+            if (snowVolume) weatherHTML += `<div class="weather-section"><span class="weather-section-icon">❄️</span> Snow Volume: ${snowVolume}</div>`;
             document.getElementById('weather').innerHTML = weatherHTML;
         }
 
