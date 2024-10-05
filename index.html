@@ -92,7 +92,6 @@
                 if (response.ok) {
                     const data = await response.json();
                     const temperature = `${data.current.temp} °F`;
-                    const feelsLike = `${data.current.feels_like} °F`;
                     const windSpeed = `${data.current.wind_speed} mph`;
                     const humidity = `${data.current.humidity} %`;
                     const conditionText = data.current.weather[0].description;
@@ -107,7 +106,13 @@
                     const rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
                     const snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
                     const windDirection = data.current.wind_deg ? `${data.current.wind_deg}°` : 'N/A';
-                    let weatherHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Feels Like: ${feelsLike}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure}<br>UV Index: ${uvIndex}<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}<br>Cloud Cover: ${cloudCover}<br>Precipitation Probability: ${precipitationProbability}`;
+                    const aqi = data.current.aqi ? `${data.current.aqi}` : 'N/A';
+                    const pollenTree = data.current.pollen ? `${data.current.pollen.tree}` : 'N/A';
+                    const pollenGrass = data.current.pollen ? `${data.current.pollen.grass}` : 'N/A';
+                    const pollenWeed = data.current.pollen ? `${data.current.pollen.weed}` : 'N/A';
+                    const moonPhase = data.daily[0].moon_phase ? `${data.daily[0].moon_phase}` : 'N/A';
+                    const windChill = data.current.wind_chill ? `${data.current.wind_chill} °F` : feelsLike;
+                    let weatherHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure}<br>UV Index: ${uvIndex}<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}<br>Cloud Cover: ${cloudCover}<br>Precipitation Probability: ${precipitationProbability}<br>Air Quality Index: ${aqi}<br>Tree Pollen Count: ${pollenTree}<br>Grass Pollen Count: ${pollenGrass}<br>Weed Pollen Count: ${pollenWeed}<br>Moon Phase: ${moonPhase}<br>Wind Chill/Heat Index: ${windChill}`;
                     if (rainVolume) weatherHTML += `<br>Rain Volume: ${rainVolume}`;
                     if (snowVolume) weatherHTML += `<br>Snow Volume: ${snowVolume}`;
                     if (windDirection !== 'N/A') weatherHTML += `<br>Wind Direction: ${windDirection}`;
@@ -138,7 +143,7 @@
             }
         }
 
-        // Update weather every 86,400 milliseconds (999 calls/day = 41 calls/hour, approximately every 87 seconds)
+        // Update weather every 90 seconds
         setInterval(updateWeather, 90000);
         updateWeather(); // Initial call to display weather immediately
     </script>
