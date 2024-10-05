@@ -14,7 +14,7 @@
             font-family: Helvetica, Arial, sans-serif;
             color: #ffffff;
             background-color: rgba(0, 0, 0, 0.1);
-            padding: 16px;
+            padding: 8px;
             border-radius: 8px;
             text-align: left;
             display: inline-block;
@@ -79,13 +79,12 @@
 </head>
 <body>
     <div id="widget">
-        <div id="day-time" style="font-weight: bold; font-size: 1.2em;"></div>
+        <div id="day-time" style="font-weight: bold; font-size: 1.2em;"><br>Camera Elev: ~640' - Vilonia Elev: 312' - Facing NNW, City ~4 mi\</div>
         <div class="weather-container">
             <div class="pod-left" id="weather-left"></div>
             <div class="pod-right" id="weather-right"></div>
         </div>
-        <div id="additional-text">
-            <p>Camera Elevation: ~640' - Vilonia Elevation: 312'<br>Facing True North - City ~4 Miles NNW</p>
+        <div id="additional-text" style="padding-top: 8px;">
             <p><strong>Sponsered by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></strong></p>
         </div>
     </div>
@@ -183,6 +182,7 @@
                 <strong>Wind Direction:</strong> ${windDirection}<br>
                 <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
                 <strong>Precipitation Type:</strong> ${precipitationType}<br>
+                <strong>Precipitation Amount:</strong> ${rainVolume !== 'N/A' ? rainVolume : snowVolume !== 'N/A' ? snowVolume : 'None'}<br>
             `;
 
             let rightPodHTML = `
