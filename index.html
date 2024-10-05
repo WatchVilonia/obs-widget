@@ -46,11 +46,11 @@
         // Fetch and update weather data using a free public API
         async function updateWeather() {
             try {
-                const response = await fetch(`https://wttr.in/Vilonia?format=%t|%C|%w|%h|%S|%s|%m|%f|%v&_=${new Date().getTime()}`);
+                const response = await fetch(`https://wttr.in/Vilonia?format=%t|%C|%w|%h|%m|%f&_=${new Date().getTime()}`);
                 if (response.ok && response.status === 200) {
                     const data = await response.text();
-                    const [temperature, conditionText, windSpeed, humidity, sunrise, sunset, moonPhase, feelsLike, visibility] = data.split('|');
-                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature.trim()}<br>Humidity: ${humidity.trim()}<br>Feels Like: ${feelsLike.trim()}<br>Precipitation: ${conditionText.trim()}<br>Condition: ${conditionText.trim()}<br>Sunrise: ${sunrise.trim()}<br>Sunset: ${sunset.trim()}<br>Moon Phase: ${moonPhase.trim()}<br>Visibility: ${visibility.trim()}<br>Wind: ${windSpeed.trim()}`;
+                    const [temperature, conditionText, windSpeed, humidity, moonPhase, feelsLike] = data.split('|');
+                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature.trim()}<br>Feels Like: ${feelsLike.trim()}<br>Condition: ${conditionText.trim()}<br>Moon Phase: ${moonPhase.trim()}<br>Wind: ${windSpeed.trim()}`;
 console.log('Weather data fetched successfully:', data);
 console.log('Weather data fetched successfully:', data);
 console.log('Weather data:', data);
