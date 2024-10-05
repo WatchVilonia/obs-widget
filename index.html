@@ -121,7 +121,27 @@
         updateClock(); // Initial call to display right away
 
         // Function to update weather data from OpenWeatherMap with wttr.in fallback
-        async function updateWeather() {
+        function getMoonPhaseDescription(moonPhase) {
+                if (moonPhase === 0 || moonPhase === 1) {
+                    return 'New Moon';
+                } else if (moonPhase > 0 && moonPhase < 0.25) {
+                    return 'Waxing Crescent';
+                } else if (moonPhase === 0.25) {
+                    return 'First Quarter';
+                } else if (moonPhase > 0.25 && moonPhase < 0.5) {
+                    return 'Waxing Gibbous';
+                } else if (moonPhase === 0.5) {
+                    return 'Full Moon';
+                } else if (moonPhase > 0.5 && moonPhase < 0.75) {
+                    return 'Waning Gibbous';
+                } else if (moonPhase === 0.75) {
+                    return 'Last Quarter';
+                } else {
+                    return 'Waning Crescent';
+                }
+            }
+
+$1
             let temperature = 'N/A';
             let windSpeed = 'N/A';
             let humidity = 'N/A';
@@ -166,7 +186,7 @@
                     rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
                     snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
                     windDirection = data.current.wind_deg ? `${data.current.wind_deg}°` : 'N/A';
-                    moonPhase = data.daily[0].moon_phase ? `${data.daily[0].moon_phase}` : 'N/A';
+                    moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
                     windChill = data.current.feels_like ? `${data.current.feels_like} °F` : 'N/A';
                 } else {
                     throw new Error('OpenWeatherMap failed');
