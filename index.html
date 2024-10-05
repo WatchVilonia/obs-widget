@@ -96,7 +96,13 @@
                     const windSpeed = `${data.current.wind_speed} mph`;
                     const humidity = `${data.current.humidity} %`;
                     const conditionText = data.current.weather[0].description;
-                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Feels Like: ${feelsLike}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Humidity: ${humidity}`;
+                    const uvIndex = data.current.uvi;
+                    const visibility = `${(data.current.visibility / 1609.34).toFixed(1)} miles`;
+                    const sunrise = new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const sunset = new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const windGust = data.current.wind_gust ? `${data.current.wind_gust} mph` : 'N/A';
+                    const pressure = `${(data.current.pressure * 0.02953).toFixed(2)} inHg`;
+                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Feels Like: ${feelsLike}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure}<br>UV Index: ${uvIndex}<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}`;
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
