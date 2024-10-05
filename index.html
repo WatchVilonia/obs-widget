@@ -13,7 +13,7 @@
             font-family: Helvetica, Arial, sans-serif;
             color: #ffffff;
             background-color: rgba(0, 0, 0, 0.25);
-            padding: 8px;
+            padding: 16px;
             border-radius: 8px;
             text-align: left;
             display: inline-block;
@@ -35,6 +35,20 @@
         #additional-text {
             font-size: 0.9em;
             display: block;
+        }
+
+        #weather {
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .weather-section {
+            margin-bottom: 8px;
+        }
+
+        .weather-section-title {
+            font-weight: bold;
+            margin-bottom: 4px;
         }
 
         a {
@@ -157,25 +171,39 @@
             }
 
             let weatherHTML = `
-                <strong>Weather in Vilonia:</strong><br>
-                Temperature: ${temperature}<br>
-                Condition: ${conditionText}<br>
-                Feels Like: ${windChill}<br>
-                Humidity: ${humidity}<br>
-                Cloud Cover: ${cloudCover}<br>
-                Wind Speed: ${windSpeed}<br>
-                Wind Gust: ${windGust}<br>
-                Wind Direction: ${windDirection}<br>
-                Pressure: ${pressure} (${pressureDescription})<br>
-                UV Index: ${uvIndex}<br>
-                Visibility: ${visibility}<br>
-                Sunrise: ${sunrise}<br>
-                Sunset: ${sunset}<br>
-                Moon Phase: ${moonPhase}<br>
-                Precipitation Probability: ${precipitationProbability}
+                <div class="weather-section">
+                    <div class="weather-section-title">General Conditions:</div>
+                    Temperature: ${temperature}<br>
+                    Condition: ${conditionText}<br>
+                    Feels Like: ${windChill}<br>
+                    Humidity: ${humidity}<br>
+                    Cloud Cover: ${cloudCover}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">Wind Information:</div>
+                    Wind Speed: ${windSpeed}<br>
+                    Wind Gust: ${windGust}<br>
+                    Wind Direction: ${windDirection}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">Pressure and Visibility:</div>
+                    Pressure: ${pressure} (${pressureDescription})<br>
+                    Visibility: ${visibility}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">Sun and Moon:</div>
+                    Sunrise: ${sunrise}<br>
+                    Sunset: ${sunset}<br>
+                    Moon Phase: ${moonPhase}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">UV Index and Precipitation:</div>
+                    UV Index: ${uvIndex}<br>
+                    Precipitation Probability: ${precipitationProbability}
+                </div>
             `;
-            if (rainVolume) weatherHTML += `<br>Rain Volume: ${rainVolume}`;
-            if (snowVolume) weatherHTML += `<br>Snow Volume: ${snowVolume}`;
+            if (rainVolume) weatherHTML += `<div class="weather-section"><strong>Rain Volume:</strong> ${rainVolume}</div>`;
+            if (snowVolume) weatherHTML += `<div class="weather-section"><strong>Snow Volume:</strong> ${snowVolume}</div>`;
             document.getElementById('weather').innerHTML = weatherHTML;
         }
 
