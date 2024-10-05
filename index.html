@@ -37,6 +37,16 @@
             display: block;
         }
 
+        .pod {
+            display: inline-block;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            vertical-align: top;
+            min-width: 150px;
+        }
+
         a {
             color: #ffffff;
             text-decoration: none;
@@ -136,26 +146,37 @@
                 console.error('Primary source failed, attempting fallback:', error);
             }
 
-            // Displaying weather information
+            // Displaying weather information in pods
             let weatherHTML = `
-                <strong>Weather in Vilonia:</strong><br>
-                Temperature: ${temperature}<br>
-                Humidity: ${humidity}<br>
-                Feels Like: ${windChill} ${feelsLikeContext}<br>
-                Wind Speed: ${windSpeed}<br>
-                Wind Gust: ${windGust}<br>
-                Wind Direction: ${windDirection}<br>
-                Precipitation Probability: ${precipitationProbability}<br>
-                Precipitation Type: ${precipitationType}<br>
-                Cloud Cover: ${cloudCover}<br>
-                Condition: ${conditionText}<br>
-                Visibility: ${visibility}<br>
-                UV Index: ${uvIndex}<br>
-                Sunrise/Sunset: Sunrise: ${sunrise}, Sunset: ${sunset}<br>
-                Moon Phase: ${moonPhase}<br>
-                Pressure: ${pressure} (${pressureDescription})<br>
-                AQI: ${aqi}<br>
-                Pollen Count: ${pollenCount}<br>
+                <div class="pod">
+                    <strong>Temperature:</strong> ${temperature}<br>
+                    <strong>Feels Like:</strong> ${windChill} ${feelsLikeContext}<br>
+                    <strong>Humidity:</strong> ${humidity}<br>
+                </div>
+                <div class="pod">
+                    <strong>Wind Speed:</strong> ${windSpeed}<br>
+                    <strong>Wind Gust:</strong> ${windGust}<br>
+                    <strong>Wind Direction:</strong> ${windDirection}<br>
+                </div>
+                <div class="pod">
+                    <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
+                    <strong>Precipitation Type:</strong> ${precipitationType}<br>
+                    <strong>Cloud Cover:</strong> ${cloudCover}<br>
+                </div>
+                <div class="pod">
+                    <strong>Condition:</strong> ${conditionText}<br>
+                    <strong>Visibility:</strong> ${visibility}<br>
+                    <strong>UV Index:</strong> ${uvIndex}<br>
+                </div>
+                <div class="pod">
+                    <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
+                    <strong>Moon Phase:</strong> ${moonPhase}<br>
+                </div>
+                <div class="pod">
+                    <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
+                    <strong>AQI:</strong> ${aqi}<br>
+                    <strong>Pollen Count:</strong> ${pollenCount}<br>
+                </div>
             `;
             document.getElementById('weather').innerHTML = weatherHTML;
         }
