@@ -40,15 +40,13 @@
         #weather {
             margin-top: 10px;
             line-height: 1.5;
+            columns: 2;
+            column-gap: 20px;
         }
 
         .weather-section {
-            margin-bottom: 8px;
-        }
-
-        .weather-section-title {
-            font-weight: bold;
             margin-bottom: 4px;
+            break-inside: avoid;
         }
 
         a {
@@ -139,7 +137,7 @@
                     } else if (data.current.pressure < 29.80) {
                         pressureDescription = 'Low Pressure - Cloudy or stormy conditions possible';
                     }
-                    cloudCover = data.current.clouds ? `${data.current.clouds} %` : 'N/A';
+                    cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
                     precipitationProbability = `${(data.daily[0].pop * 100).toFixed(0)} %`;
                     rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
                     snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
@@ -172,34 +170,19 @@
 
             let weatherHTML = `
                 <div class="weather-section">
-                    <div class="weather-section-title">General Conditions:</div>
-                    Temperature: ${temperature}<br>
-                    Condition: ${conditionText}<br>
-                    Feels Like: ${windChill}<br>
-                    Humidity: ${humidity}<br>
-                    Cloud Cover: ${cloudCover}
+                    <strong>Temperature:</strong> ${temperature} | <strong>Feels Like:</strong> ${windChill} | <strong>Condition:</strong> ${conditionText} | <strong>Humidity:</strong> ${humidity} | <strong>Cloud Cover:</strong> ${cloudCover}
                 </div>
                 <div class="weather-section">
-                    <div class="weather-section-title">Wind Information:</div>
-                    Wind Speed: ${windSpeed}<br>
-                    Wind Gust: ${windGust}<br>
-                    Wind Direction: ${windDirection}
+                    <strong>Wind Speed:</strong> ${windSpeed} | <strong>Wind Gust:</strong> ${windGust} | <strong>Wind Direction:</strong> ${windDirection}
                 </div>
                 <div class="weather-section">
-                    <div class="weather-section-title">Pressure and Visibility:</div>
-                    Pressure: ${pressure} (${pressureDescription})<br>
-                    Visibility: ${visibility}
+                    <strong>Pressure:</strong> ${pressure} (${pressureDescription}) | <strong>Visibility:</strong> ${visibility}
                 </div>
                 <div class="weather-section">
-                    <div class="weather-section-title">Sun and Moon:</div>
-                    Sunrise: ${sunrise}<br>
-                    Sunset: ${sunset}<br>
-                    Moon Phase: ${moonPhase}
+                    <strong>Sunrise:</strong> ${sunrise} | <strong>Sunset:</strong> ${sunset} | <strong>Moon Phase:</strong> ${moonPhase}
                 </div>
                 <div class="weather-section">
-                    <div class="weather-section-title">UV Index and Precipitation:</div>
-                    UV Index: ${uvIndex}<br>
-                    Precipitation Probability: ${precipitationProbability}
+                    <strong>UV Index:</strong> ${uvIndex} | <strong>Precipitation Probability:</strong> ${precipitationProbability}
                 </div>
             `;
             if (rainVolume) weatherHTML += `<div class="weather-section"><strong>Rain Volume:</strong> ${rainVolume}</div>`;
