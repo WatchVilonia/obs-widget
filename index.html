@@ -138,8 +138,8 @@
             }
         }
 
- // Update weather every 60 seconds
-        setInterval(updateWeather, 60000);
+        // Update weather every 86,400 milliseconds (999 calls/day = 41 calls/hour, approximately every 87 seconds)
+        setInterval(updateWeather, 90000);
         updateWeather(); // Initial call to display weather immediately
     </script>
 </body>
