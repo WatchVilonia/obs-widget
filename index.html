@@ -41,6 +41,11 @@
             color: #ffffff;
             text-decoration: none;
         }
+
+        .weather-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -142,47 +147,24 @@
 
             let weatherHTML = `
                 <strong>Weather in Vilonia:</strong><br>
-                <br><div style='border-top: 1px solid rgba(255, 255, 255, 0.2); margin: 5px 0;'></div>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                <br><hr>
-                Pressure: ${pressure} (${pressureDescription})
-            `;
-            document.getElementById('weather').innerHTML = weatherHTML;
-        }
-
-        function getMoonPhaseDescription(phase) {
-            if (phase === 0 || phase === 1) {
-                return 'New Moon';
-            } else if (phase > 0 && phase < 0.25) {
-                return 'Waxing Crescent';
-            } else if (phase === 0.25) {
-                return 'First Quarter';
-            } else if (phase > 0.25 && phase < 0.5) {
-                return 'Waxing Gibbous';
-            } else if (phase === 0.5) {
-                return 'Full Moon';
-            } else if (phase > 0.5 && phase < 0.75) {
-                return 'Waning Gibbous';
-            } else if (phase === 0.75) {
-                return 'Last Quarter';
-            } else {
-                return 'Waning Crescent';
-            }
-        }
-
-        // Update weather every 90 seconds
-        setInterval(updateWeather, 90000);
-        updateWeather(); // Initial call to display weather immediately
-    </script>
-</body>
-</html>
+                Temperature: ${temperature}<br>
+                <div class='weather-divider'></div>
+                Humidity: ${humidity}<br>
+                <div class='weather-divider'></div>
+                Feels Like: ${windChill}<br>
+                <div class='weather-divider'></div>
+                Wind Speed: ${windSpeed}<br>
+                <div class='weather-divider'></div>
+                Wind Gust: ${windGust}<br>
+                <div class='weather-divider'></div>
+                Wind Direction: ${windDirection}<br>
+                <div class='weather-divider'></div>
+                Precipitation Probability: ${precipitationProbability}<br>
+                <div class='weather-divider'></div>
+                Cloud Cover: ${cloudCover}<br>
+                <div class='weather-divider'></div>
+                Condition: ${conditionText}<br>
+                <div class='weather-divider'></div>
+                Visibility: ${visibility}<br>
+                <div class='weather-divider'></div>
+                UV Index
