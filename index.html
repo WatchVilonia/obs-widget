@@ -138,7 +138,7 @@
                     } else if (data.current.pressure < 29.80) {
                         pressureDescription = 'Low Pressure - Cloudy or stormy conditions possible';
                     }
-                    cloudCover = data.current.clouds ? `${data.current.clouds} %` : 'N/A';
+                    cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
                     precipitationProbability = `${(data.daily[0].pop * 100).toFixed(0)} %`;
                     rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
                     snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
