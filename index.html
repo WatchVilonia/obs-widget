@@ -13,7 +13,7 @@
             font-family: Helvetica, Arial, sans-serif;
             color: #ffffff;
             background-color: rgba(0, 0, 0, 0.25);
-            padding: 8px;
+            padding: 16px;
             border-radius: 8px;
             text-align: left;
             display: inline-block;
@@ -35,6 +35,19 @@
         #additional-text {
             font-size: 0.9em;
             display: block;
+        }
+
+        #weather {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .weather-section {
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
         }
 
         a {
@@ -109,7 +122,7 @@
                     const visibility = data.current.visibility ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
                     const sunrise = data.current.sunrise ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
                     const sunset = data.current.sunset ? new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
-                    const windGust = data.current.wind_gust ? `${data.current.wind_gust} mph` : 'N/A';
+                    const windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : 'N/A';
                     const pressure = data.current.pressure ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
                     let pressureDescription = 'Stable';
                     if (data.current.pressure > 30.00) {
@@ -125,10 +138,40 @@
                     const moonPhase = data.daily[0].moon_phase ? `${data.daily[0].moon_phase}` : 'N/A';
                     const windChill = data.current.feels_like ? `${data.current.feels_like} °F` : 'N/A';
 
-                    let weatherHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure} (${pressureDescription})<br>UV Index: ${uvIndex} (${uvIndexDescription})<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}<br>Cloud Cover: ${cloudCover}<br>Precipitation Probability: ${precipitationProbability}<br>Moon Phase: ${moonPhase}<br>Feels Like: ${windChill}`;
-                    if (rainVolume) weatherHTML += `<br>Rain Volume: ${rainVolume}`;
-                    if (snowVolume) weatherHTML += `<br>Snow Volume: ${snowVolume}`;
-                    if (windDirection !== 'N/A') weatherHTML += `<br>Wind Direction: ${windDirection}`;
+                    let weatherHTML = `
+                        <div class="weather-section">
+                            <strong>General Conditions:</strong><br>
+                            Temperature: ${temperature}<br>
+                            Condition: ${conditionText}<br>
+                            Feels Like: ${windChill}<br>
+                            Humidity: ${humidity}<br>
+                            Cloud Cover: ${cloudCover}<br>
+                        </div>
+                        <div class="weather-section">
+                            <strong>Wind Information:</strong><br>
+                            Wind Speed: ${windSpeed}<br>
+                            Wind Gust: ${windGust}<br>
+                            Wind Direction: ${windDirection}
+                        </div>
+                        <div class="weather-section">
+                            <strong>Pressure and Visibility:</strong><br>
+                            Pressure: ${pressure} (${pressureDescription})<br>
+                            Visibility: ${visibility}
+                        </div>
+                        <div class="weather-section">
+                            <strong>Sun and Moon:</strong><br>
+                            Sunrise: ${sunrise}<br>
+                            Sunset: ${sunset}<br>
+                            Moon Phase: ${moonPhase}
+                        </div>
+                        <div class="weather-section">
+                            <strong>UV Index and Precipitation:</strong><br>
+                            UV Index: ${uvIndex} (${uvIndexDescription})<br>
+                            Precipitation Probability: ${precipitationProbability}
+                        </div>
+                    `;
+                    if (rainVolume) weatherHTML += `<div class="weather-section">Rain Volume: ${rainVolume}</div>`;
+                    if (snowVolume) weatherHTML += `<div class="weather-section">Snow Volume: ${snowVolume}</div>`;
                     document.getElementById('weather').innerHTML = weatherHTML;
                 } else {
                     throw new Error('OpenWeatherMap failed');
