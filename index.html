@@ -144,3 +144,19 @@
                 }
             } catch (error) {
                 console.error('Primary source failed, attempting fallback:', error);
+            }
+
+            // Displaying weather information in pods
+            let weatherHTML = `
+                <div class="pod">
+                    <strong>Temperature:</strong> ${temperature}<br>
+                    <strong>Feels Like:</strong> ${windChill} ${feelsLikeContext}<br>
+                    <strong>Humidity:</strong> ${humidity}<br>
+                </div>
+                <div class="pod">
+                    <strong>Wind Speed:</strong> ${windSpeed}<br>
+                    <strong>Wind Gust:</strong> ${windGust}<br>
+                    <strong>Wind Direction:</strong> ${windDirection}<br>
+                </div>
+                <div class="pod">
+                    <strong>
