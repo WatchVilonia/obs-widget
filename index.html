@@ -39,14 +39,22 @@
 
         #weather {
             margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
             line-height: 1.5;
-            columns: 2;
-            column-gap: 20px;
         }
 
         .weather-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .weather-section-title {
+            font-weight: bold;
             margin-bottom: 4px;
-            break-inside: avoid;
         }
 
         a {
@@ -164,35 +172,4 @@
                 } else {
                     console.warn('Fallback source data unavailable');
                 }
-            } catch (fallbackError) {
-                console.error('Error fetching weather data from fallback source:', fallbackError);
-            }
-
-            let weatherHTML = `
-                <div class="weather-section">
-                    <strong>Temperature:</strong> ${temperature} | <strong>Feels Like:</strong> ${windChill} | <strong>Condition:</strong> ${conditionText} | <strong>Humidity:</strong> ${humidity} | <strong>Cloud Cover:</strong> ${cloudCover}
-                </div>
-                <div class="weather-section">
-                    <strong>Wind Speed:</strong> ${windSpeed} | <strong>Wind Gust:</strong> ${windGust} | <strong>Wind Direction:</strong> ${windDirection}
-                </div>
-                <div class="weather-section">
-                    <strong>Pressure:</strong> ${pressure} (${pressureDescription}) | <strong>Visibility:</strong> ${visibility}
-                </div>
-                <div class="weather-section">
-                    <strong>Sunrise:</strong> ${sunrise} | <strong>Sunset:</strong> ${sunset} | <strong>Moon Phase:</strong> ${moonPhase}
-                </div>
-                <div class="weather-section">
-                    <strong>UV Index:</strong> ${uvIndex} | <strong>Precipitation Probability:</strong> ${precipitationProbability}
-                </div>
-            `;
-            if (rainVolume) weatherHTML += `<div class="weather-section"><strong>Rain Volume:</strong> ${rainVolume}</div>`;
-            if (snowVolume) weatherHTML += `<div class="weather-section"><strong>Snow Volume:</strong> ${snowVolume}</div>`;
-            document.getElementById('weather').innerHTML = weatherHTML;
-        }
-
-        // Update weather every 90 seconds
-        setInterval(updateWeather, 90000);
-        updateWeather(); // Initial call to display weather immediately
-    </script>
-</body>
-</html>
+            } catch
