@@ -89,7 +89,8 @@
             let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
             let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
             let cloudCover = 'N/A', precipitationProbability = 'N/A', rainVolume = 'N/A', snowVolume = 'N/A', windDirection = 'N/A';
-            let moonPhase = 'N/A', windChill = 'N/A';
+            let moonPhase = 'N/A', windChill = 'N/A', feelsLikeContext = '', precipitationType = 'N/A';
+            let aqi = 'N/A', pollenCount = 'N/A';
 
             try {
                 // Fetch weather data from OpenWeatherMap
@@ -100,12 +101,13 @@
                     windSpeed = data.current.wind_speed !== undefined ? `${data.current.wind_speed} mph` : 'N/A';
                     humidity = data.current.humidity !== undefined ? `${data.current.humidity} %` : 'N/A';
                     windChill = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
+                    feelsLikeContext = data.current.feels_like < data.current.temp ? '(Wind Chill)' : '(Heat Index)';
                     windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : '0 mph';
                     windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
                     precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
                     cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
                     conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
-                    visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
+                    visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles (max ~10 miles)` : 'N/A';
                     uvIndex = data.current.uvi !== undefined ? `${data.current.uvi} (Exposure risk: ${data.current.uvi <= 2 ? 'Low' : data.current.uvi <= 5 ? 'Moderate' : data.current.uvi <= 7 ? 'High' : data.current.uvi <= 10 ? 'Very High' : 'Extreme'})` : 'N/A';
                     if (data.current.sunrise && data.current.sunset) {
                         sunrise = `${new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
@@ -116,6 +118,13 @@
                     if (data.current.pressure !== undefined) {
                         pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
                     }
+                    if (data.daily[0].rain) {
+                        precipitationType = 'Rain';
+                    } else if (data.daily[0].snow) {
+                        precipitationType = 'Snow';
+                    } else {
+                        precipitationType = 'None';
+                    }
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
@@ -125,14 +134,16 @@
 
             // Fetch data from wttr.in as a fallback for any missing fields
             try {
-                const responseFallback = await fetch(`https://wttr.in/Vilonia?format=%t|%C|%w|%h&_=${new Date().getTime()}`);
+                const responseFallback = await fetch(`https://wttr.in/Vilonia?format=%t|%C|%w|%h|%p|%P&_=${new Date().getTime()}`);
                 if (responseFallback.ok) {
                     const data = await responseFallback.text();
-                    const [fallbackTemp, fallbackCondition, fallbackWind, fallbackHumidity] = data.split('|').map(value => value.trim() ? value.trim() : 'N/A');
+                    const [fallbackTemp, fallbackCondition, fallbackWind, fallbackHumidity, fallbackAQI, fallbackPollen] = data.split('|').map(value => value.trim() ? value.trim() : 'N/A');
                     if (temperature === 'N/A') temperature = fallbackTemp;
                     if (conditionText === 'N/A') conditionText = fallbackCondition;
                     if (windSpeed === 'N/A') windSpeed = fallbackWind;
                     if (humidity === 'N/A') humidity = fallbackHumidity;
+                    if (aqi === 'N/A') aqi = fallbackAQI;
+                    if (pollenCount === 'N/A') pollenCount = fallbackPollen;
                 } else {
                     console.warn('Fallback source data unavailable');
                 }
@@ -144,17 +155,20 @@
                 <strong>Weather in Vilonia:</strong><br>
                 Temperature: ${temperature}<br>
                 Humidity: ${humidity}<br>
-                Feels Like: ${windChill}<br>
+                Feels Like: ${windChill} ${feelsLikeContext}<br>
                 Wind Speed: ${windSpeed}<br>
                 Wind Gust: ${windGust}<br>
                 Wind Direction: ${windDirection}<br>
                 Precipitation Probability: ${precipitationProbability}<br>
+                Precipitation Type: ${precipitationType}<br>
                 Cloud Cover: ${cloudCover}<br>
-                Condition: ${conditionText}<br>Visibility: N/A miles (max ~10 miles)<br>
+                Condition: ${conditionText}<br>
+                Visibility: ${visibility}<br>
                 UV Index: ${uvIndex}<br>
                 Sunrise/Sunset: Sunrise: ${sunrise}, Sunset: ${sunset}<br>
                 Moon Phase: ${moonPhase}<br>
-                Pressure: ${pressure} (${pressureDescription})
+                Pressure: ${pressure} (${pressureDescription})<br>
+                AQI & Pollen Count: AQI: ${aqi}, Pollen: ${pollenCount}
             `;
             document.getElementById('weather').innerHTML = weatherHTML;
         }
