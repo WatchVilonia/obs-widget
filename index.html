@@ -13,7 +13,7 @@
             font-family: Helvetica, Arial, sans-serif;
             color: #ffffff;
             background-color: rgba(0, 0, 0, 0.25);
-            padding: 16px;
+            padding: 8px;
             border-radius: 8px;
             text-align: left;
             display: inline-block;
@@ -37,25 +37,6 @@
             display: block;
         }
 
-        #weather {
-            margin-top: 10px;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            line-height: 1.5;
-        }
-
-        .weather-section {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .weather-section-title {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
         a {
             color: #ffffff;
             text-decoration: none;
@@ -65,7 +46,7 @@
 <body>
     <div id="widget">
         <div id="day-time" style="font-weight: bold; font-size: 1.2em;"></div>
-        <div id="weather"></div>
+        <div id="weather" style="margin-top: 10px;"></div>
         <div id="additional-text">
             <p>Camera Elevation: ~640' - Vilonia Elevation: 312'<br>Facing True North - City ~4 Miles NNW</p>
             <p><strong>Sponsered by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></strong></p>
@@ -144,7 +125,7 @@
                     } else if (data.current.pressure < 29.80) {
                         pressureDescription = 'Low Pressure - Cloudy or stormy conditions possible';
                     }
-                    cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
+                    cloudCover = data.current.clouds ? `${data.current.clouds} %` : 'N/A';
                     precipitationProbability = `${(data.daily[0].pop * 100).toFixed(0)} %`;
                     rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
                     snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
@@ -176,33 +157,31 @@
             }
 
             let weatherHTML = `
-                <div class="weather-section">
-                    <div class="weather-section-title">General Conditions:</div>
-                    Temperature: ${temperature}<br>
-                    Feels Like: ${windChill}<br>
-                    Condition: ${conditionText}<br>
-                    Humidity: ${humidity}<br>
-                    Cloud Cover: ${cloudCover}
-                </div>
-                <div class="weather-section">
-                    <div class="weather-section-title">Wind Information:</div>
-                    Wind Speed: ${windSpeed}<br>
-                    Wind Gust: ${windGust}<br>
-                    Wind Direction: ${windDirection}
-                </div>
-                <div class="weather-section">
-                    <div class="weather-section-title">Pressure and Visibility:</div>
-                    Pressure: ${pressure} (${pressureDescription})<br>
-                    Visibility: ${visibility}
-                </div>
-                <div class="weather-section">
-                    <div class="weather-section-title">Sun and Moon:</div>
-                    Sunrise: ${sunrise}<br>
-                    Sunset: ${sunset}<br>
-                    Moon Phase: ${moonPhase}
-                </div>
-                <div class="weather-section">
-                    <div class="weather-section-title">UV Index and Precipitation:</div>
-                    UV Index: ${uvIndex}<br>
-                    Precipitation Probability: ${precipitationProbability}
-                </div>
+                <strong>Weather in Vilonia:</strong><br>
+                Temperature: ${temperature}<br>
+                Condition: ${conditionText}<br>
+                Feels Like: ${windChill}<br>
+                Humidity: ${humidity}<br>
+                Cloud Cover: ${cloudCover}<br>
+                Wind Speed: ${windSpeed}<br>
+                Wind Gust: ${windGust}<br>
+                Wind Direction: ${windDirection}<br>
+                Pressure: ${pressure} (${pressureDescription})<br>
+                UV Index: ${uvIndex}<br>
+                Visibility: ${visibility}<br>
+                Sunrise: ${sunrise}<br>
+                Sunset: ${sunset}<br>
+                Moon Phase: ${moonPhase}<br>
+                Precipitation Probability: ${precipitationProbability}
+            `;
+            if (rainVolume) weatherHTML += `<br>Rain Volume: ${rainVolume}`;
+            if (snowVolume) weatherHTML += `<br>Snow Volume: ${snowVolume}`;
+            document.getElementById('weather').innerHTML = weatherHTML;
+        }
+
+        // Update weather every 90 seconds
+        setInterval(updateWeather, 90000);
+        updateWeather(); // Initial call to display weather immediately
+    </script>
+</body>
+</html>
