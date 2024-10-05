@@ -13,11 +13,12 @@
             font-family: Helvetica, Arial, sans-serif;
             color: #ffffff;
             background-color: rgba(0, 0, 0, 0.25);
-            padding: 8px;
+            padding: 16px;
             border-radius: 8px;
             text-align: left;
             display: inline-block;
-            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         #day-time, #additional-text {
@@ -41,6 +42,8 @@
             display: flex;
             margin-top: 10px;
             gap: 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .pod-left {
@@ -213,3 +216,5 @@
         setInterval(updateWeather, 90000);
         updateWeather(); // Initial call to display weather immediately
     </script>
+</body>
+</html>
