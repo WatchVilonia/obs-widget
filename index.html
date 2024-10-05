@@ -37,14 +37,19 @@
             display: block;
         }
 
-        .pod {
-            display: inline-block;
+        .weather-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .pod-left, .pod-right {
+            flex: 1;
             background-color: rgba(0, 0, 0, 0.3);
-            padding: 8px;
+            padding: 10px;
             margin: 5px;
             border-radius: 8px;
-            vertical-align: top;
-            width: 200px;
+            min-width: 200px;
         }
 
         a {
@@ -56,7 +61,10 @@
 <body>
     <div id="widget">
         <div id="day-time" style="font-weight: bold; font-size: 1.2em;"></div>
-        <div id="weather" style="margin-top: 10px;"></div>
+        <div class="weather-container">
+            <div class="pod-left" id="weather-left"></div>
+            <div class="pod-right" id="weather-right"></div>
+        </div>
         <div id="additional-text">
             <p>Camera Elevation: ~640' - Vilonia Elevation: 312'<br>Facing True North - City ~4 Miles NNW</p>
             <p><strong>Sponsered by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></strong></p>
@@ -146,39 +154,32 @@
                 console.error('Primary source failed, attempting fallback:', error);
             }
 
-            // Displaying weather information in pods
-            let weatherHTML = `
-                <div class="pod">
-                    <strong>Temperature:</strong> ${temperature}<br>
-                    <strong>Feels Like:</strong> ${windChill} ${feelsLikeContext}<br>
-                    <strong>Humidity:</strong> ${humidity}<br>
-                </div>
-                <div class="pod">
-                    <strong>Wind Speed:</strong> ${windSpeed}<br>
-                    <strong>Wind Gust:</strong> ${windGust}<br>
-                    <strong>Wind Direction:</strong> ${windDirection}<br>
-                </div>
-                <div class="pod">
-                    <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
-                    <strong>Precipitation Type:</strong> ${precipitationType}<br>
-                    <strong>Cloud Cover:</strong> ${cloudCover}<br>
-                </div>
-                <div class="pod">
-                    <strong>Condition:</strong> ${conditionText}<br>
-                    <strong>Visibility:</strong> ${visibility}<br>
-                    <strong>UV Index:</strong> ${uvIndex}<br>
-                </div>
-                <div class="pod">
-                    <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
-                    <strong>Moon Phase:</strong> ${moonPhase}<br>
-                </div>
-                <div class="pod">
-                    <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
-                    <strong>AQI:</strong> ${aqi}<br>
-                    <strong>Pollen Count:</strong> ${pollenCount}<br>
-                </div>
+            // Distribute weather information between left and right pods
+            let leftPodHTML = `
+                <strong>Temperature:</strong> ${temperature}<br>
+                <strong>Feels Like:</strong> ${windChill} ${feelsLikeContext}<br>
+                <strong>Humidity:</strong> ${humidity}<br>
+                <strong>Wind Speed:</strong> ${windSpeed}<br>
+                <strong>Wind Gust:</strong> ${windGust}<br>
+                <strong>Wind Direction:</strong> ${windDirection}<br>
+                <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
+                <strong>Precipitation Type:</strong> ${precipitationType}<br>
             `;
-            document.getElementById('weather').innerHTML = weatherHTML;
+
+            let rightPodHTML = `
+                <strong>Cloud Cover:</strong> ${cloudCover}<br>
+                <strong>Condition:</strong> ${conditionText}<br>
+                <strong>Visibility:</strong> ${visibility}<br>
+                <strong>UV Index:</strong> ${uvIndex}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
+                <strong>Moon Phase:</strong> ${moonPhase}<br>
+                <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
+                <strong>AQI:</strong> ${aqi}<br>
+                <strong>Pollen Count:</strong> ${pollenCount}<br>
+            `;
+
+            document.getElementById('weather-left').innerHTML = leftPodHTML;
+            document.getElementById('weather-right').innerHTML = rightPodHTML;
         }
 
         function getMoonPhaseDescription(phase) {
