@@ -59,20 +59,11 @@
                     const moonPhase = 'N/A';
                     document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Feels Like: ${feelsLike}<br>Precipitation: ${precipitation}<br>Condition: ${conditionText}<br>Moon Phase: ${moonPhase}<br>Wind: ${windSpeed}<br>Humidity: ${humidity}`;
                 } else {
-                    throw new Error('Primary source failed');
+                    document.getElementById('weather').textContent = 'Weather data unavailable';
                 }
             } catch (error) {
-                // Fallback to wttr.in if OpenWeatherMap fails
-                console.error('Primary source failed, attempting fallback:', error);
-                try {
-                    const responseFallback = await fetch(`https://wttr.in/Vilonia?format=%t|%C|%w|%h|%m|%f&_=${new Date().getTime()}`);
-                    if (responseFallback.ok && responseFallback.status === 200) {
-                        const data = await responseFallback.text();
-                        const [temperature, conditionText, windSpeed, humidity, moonPhase, feelsLike] = data.split('|').map(value => value.trim() ? value.trim() : 'N/A');
-                        document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Feels Like: ${feelsLike}<br>Condition: ${conditionText}<br>Moon Phase: ${moonPhase}<br>Wind: ${windSpeed}<br>Humidity: ${humidity}`;
-                    } else {
-                        document.getElementById('weather').textContent = 'Weather data unavailable';
-                    }
+                document.getElementById('weather').textContent = 'Error retrieving weather data'; console.error('Error fetching weather data:', error);
+            }
                 } catch (fallbackError) {
                     document.getElementById('weather').textContent = 'Error retrieving weather data';
                     console.error('Error fetching weather data from fallback source:', fallbackError);
@@ -84,7 +75,7 @@
             }
         }
         
-        setInterval(updateWeather, 30000); // Refresh weather every 60 seconds
+        setInterval(updateWeather, 60000); // Refresh weather every 60 seconds
         updateWeather(); // Initial call to display weather immediately
     </script>
     </head>
