@@ -175,15 +175,15 @@
             `;
 
             let rightPodHTML = `
-                <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
+                <strong>AQI:</strong> ${aqi}<br>
+                <strong>Pollen Count:</strong> ${pollenCount}<br>
                 <strong>Cloud Cover:</strong> ${cloudCover}<br>
                 <strong>Condition:</strong> ${conditionText}<br>
                 <strong>Visibility:</strong> ${visibility}<br>
                 <strong>UV Index:</strong> ${uvIndex}<br>
                 <strong>Moon Phase:</strong> ${moonPhase}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
                 <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
-                <strong>AQI:</strong> ${aqi}<br>
-                <strong>Pollen Count:</strong> ${pollenCount}<br>
             `;
 
             document.getElementById('weather-left').innerHTML = leftPodHTML;
