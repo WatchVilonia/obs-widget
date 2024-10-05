@@ -96,20 +96,36 @@
                     const humidity = `${data.current.humidity ?? 'N/A'} %`;
                     const conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
                     const uvIndex = data.current.uvi ?? 'N/A';
+                    let uvIndexDescription = 'Low';
+                    if (uvIndex >= 3 && uvIndex < 6) {
+                        uvIndexDescription = 'Moderate';
+                    } else if (uvIndex >= 6 && uvIndex < 8) {
+                        uvIndexDescription = 'High';
+                    } else if (uvIndex >= 8 && uvIndex < 11) {
+                        uvIndexDescription = 'Very High';
+                    } else if (uvIndex >= 11) {
+                        uvIndexDescription = 'Extreme';
+                    }
                     const visibility = data.current.visibility ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
                     const sunrise = data.current.sunrise ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
                     const sunset = data.current.sunset ? new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
                     const windGust = data.current.wind_gust ? `${data.current.wind_gust} mph` : 'N/A';
                     const pressure = data.current.pressure ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
+                    let pressureDescription = 'Stable';
+                    if (data.current.pressure > 30.00) {
+                        pressureDescription = 'High Pressure - Clear, calm weather likely';
+                    } else if (data.current.pressure < 29.80) {
+                        pressureDescription = 'Low Pressure - Cloudy or stormy conditions possible';
+                    }
                     const cloudCover = data.current.clouds ? `${data.current.clouds} %` : 'N/A';
-                    const precipitationProbability = data.daily[0].pop ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
+                    const precipitationProbability = `${(data.daily[0].pop * 100).toFixed(0)} %`;
                     const rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
                     const snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
                     const windDirection = data.current.wind_deg ? `${data.current.wind_deg}°` : 'N/A';
                     const moonPhase = data.daily[0].moon_phase ? `${data.daily[0].moon_phase}` : 'N/A';
                     const windChill = data.current.feels_like ? `${data.current.feels_like} °F` : 'N/A';
 
-                    let weatherHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure}<br>UV Index: ${uvIndex}<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}<br>Cloud Cover: ${cloudCover}<br>Precipitation Probability: ${precipitationProbability}<br>Moon Phase: ${moonPhase}<br>Wind Chill: ${windChill}`;
+                    let weatherHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure} (${pressureDescription})<br>UV Index: ${uvIndex} (${uvIndexDescription})<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}<br>Cloud Cover: ${cloudCover}<br>Precipitation Probability: ${precipitationProbability}<br>Moon Phase: ${moonPhase}<br>Feels Like: ${windChill}`;
                     if (rainVolume) weatherHTML += `<br>Rain Volume: ${rainVolume}`;
                     if (snowVolume) weatherHTML += `<br>Snow Volume: ${snowVolume}`;
                     if (windDirection !== 'N/A') weatherHTML += `<br>Wind Direction: ${windDirection}`;
