@@ -40,7 +40,7 @@
         #weather {
             margin-top: 10px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
             line-height: 1.5;
         }
@@ -49,7 +49,6 @@
             background-color: rgba(255, 255, 255, 0.1);
             padding: 10px;
             border-radius: 5px;
-            margin-bottom: 8px;
         }
 
         .weather-section-title {
@@ -66,7 +65,7 @@
 <body>
     <div id="widget">
         <div id="day-time" style="font-weight: bold; font-size: 1.2em;"></div>
-        <div id="weather" style="margin-top: 10px;"></div>
+        <div id="weather"></div>
         <div id="additional-text">
             <p>Camera Elevation: ~640' - Vilonia Elevation: 312'<br>Facing True North - City ~4 Miles NNW</p>
             <p><strong>Sponsered by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></strong></p>
@@ -172,4 +171,38 @@
                 } else {
                     console.warn('Fallback source data unavailable');
                 }
-            } catch
+            } catch (fallbackError) {
+                console.error('Error fetching weather data from fallback source:', fallbackError);
+            }
+
+            let weatherHTML = `
+                <div class="weather-section">
+                    <div class="weather-section-title">General Conditions:</div>
+                    Temperature: ${temperature}<br>
+                    Feels Like: ${windChill}<br>
+                    Condition: ${conditionText}<br>
+                    Humidity: ${humidity}<br>
+                    Cloud Cover: ${cloudCover}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">Wind Information:</div>
+                    Wind Speed: ${windSpeed}<br>
+                    Wind Gust: ${windGust}<br>
+                    Wind Direction: ${windDirection}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">Pressure and Visibility:</div>
+                    Pressure: ${pressure} (${pressureDescription})<br>
+                    Visibility: ${visibility}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">Sun and Moon:</div>
+                    Sunrise: ${sunrise}<br>
+                    Sunset: ${sunset}<br>
+                    Moon Phase: ${moonPhase}
+                </div>
+                <div class="weather-section">
+                    <div class="weather-section-title">UV Index and Precipitation:</div>
+                    UV Index: ${uvIndex}<br>
+                    Precipitation Probability: ${precipitationProbability}
+                </div>
