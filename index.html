@@ -102,7 +102,16 @@
                     const sunset = new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const windGust = data.current.wind_gust ? `${data.current.wind_gust} mph` : 'N/A';
                     const pressure = `${(data.current.pressure * 0.02953).toFixed(2)} inHg`;
-                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Feels Like: ${feelsLike}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure}<br>UV Index: ${uvIndex}<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}`;
+                    const cloudCover = `${data.current.clouds} %`;
+                    const precipitationProbability = `${(data.daily[0].pop * 100).toFixed(0)} %`;
+                    const rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
+                    const snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
+                    const windDirection = data.current.wind_deg ? `${data.current.wind_deg}°` : 'N/A';
+                    let weatherHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Feels Like: ${feelsLike}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Wind Gust: ${windGust}<br>Humidity: ${humidity}<br>Pressure: ${pressure}<br>UV Index: ${uvIndex}<br>Visibility: ${visibility}<br>Sunrise: ${sunrise}<br>Sunset: ${sunset}<br>Cloud Cover: ${cloudCover}<br>Precipitation Probability: ${precipitationProbability}`;
+                    if (rainVolume) weatherHTML += `<br>Rain Volume: ${rainVolume}`;
+                    if (snowVolume) weatherHTML += `<br>Snow Volume: ${snowVolume}`;
+                    if (windDirection !== 'N/A') weatherHTML += `<br>Wind Direction: ${windDirection}`;
+                    document.getElementById('weather').innerHTML = weatherHTML;
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
