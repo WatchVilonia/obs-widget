@@ -43,8 +43,17 @@
             margin-top: 10px;
         }
 
-        .pod-left, .pod-right {
-            flex: 1;
+        .pod-left {
+            flex: 0 0 40%;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            min-width: 200px;
+        }
+
+        .pod-right {
+            flex: 0 0 60%;
             background-color: rgba(0, 0, 0, 0.3);
             padding: 10px;
             margin: 5px;
@@ -167,11 +176,11 @@
             `;
 
             let rightPodHTML = `
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
                 <strong>Cloud Cover:</strong> ${cloudCover}<br>
                 <strong>Condition:</strong> ${conditionText}<br>
                 <strong>Visibility:</strong> ${visibility}<br>
                 <strong>UV Index:</strong> ${uvIndex}<br>
-                <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise}, Sunset: ${sunset}<br>
                 <strong>Moon Phase:</strong> ${moonPhase}<br>
                 <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
                 <strong>AQI:</strong> ${aqi}<br>
