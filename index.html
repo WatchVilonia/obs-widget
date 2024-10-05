@@ -113,7 +113,7 @@
             const dayOfWeek = daysOfWeek[now.getDay()];
 
             // Displaying day of the week, date, and time on the same line
-            document.getElementById('day-time').innerHTML = `<br><span style='font-size: 0.9em;'>Camera Elev: ~640' - Vilonia Elev: 312' - Facing NNW, City ~4 mi</span>`;
+            document.getElementById('day-time').innerHTML = `${dayOfWeek}, ${month}/${day}/${year} - ${hours}:${minutes}:${now.getSeconds().toString().padStart(2, '0')} ${amPm} <br><span style='font-size: 0.9em;'>Camera Elev: ~640' - Vilonia Elev: 312' - Facing NNW, City ~4 mi</span>`;
         }
 
         // Function to refresh clock data every second
