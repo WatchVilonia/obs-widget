@@ -79,7 +79,7 @@
 </head>
 <body>
     <div id="widget">
-        <div id="day-time" style="font-weight: bold; font-size: 1.2em;"><br>Camera Elev: ~640' - Vilonia Elev: 312' - Facing NNW, City ~4 mi\</div>
+        <div id="day-time" style="font-weight: bold; font-size: 1.2em;"></div>
         <div class="weather-container">
             <div class="pod-left" id="weather-left"></div>
             <div class="pod-right" id="weather-right"></div>
@@ -113,7 +113,7 @@
             const dayOfWeek = daysOfWeek[now.getDay()];
 
             // Displaying day of the week, date, and time on the same line
-            document.getElementById('day-time').textContent = ` - Camera Elev: ~640' - Vilonia Elev: 312' - Facing NNW, City ~4 mi`;
+            document.getElementById('day-time').innerHTML = `<br><span style='font-size: 0.9em;'>Camera Elev: ~640' - Vilonia Elev: 312' - Facing NNW, City ~4 mi</span>`;
         }
 
         // Function to refresh clock data every second
