@@ -86,10 +86,10 @@
 
         // Function to update weather data from OpenWeatherMap with wttr.in fallback
         async function updateWeather() {
-            let temperature, windSpeed, humidity, conditionText, uvIndex, visibility;
-            let sunrise, sunset, windGust, pressure, pressureDescription;
-            let cloudCover, precipitationProbability, rainVolume, snowVolume, windDirection;
-            let moonPhase, windChill;
+            let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
+            let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
+            let cloudCover = 'N/A', precipitationProbability = 'N/A', rainVolume = 'N/A', snowVolume = 'N/A', windDirection = 'N/A';
+            let moonPhase = 'N/A', windChill = 'N/A';
 
             try {
                 // Fetch weather data from OpenWeatherMap
@@ -102,18 +102,19 @@
                     conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
                     uvIndex = data.current.uvi !== undefined ? `${data.current.uvi} (Exposure risk: ${data.current.uvi <= 2 ? 'Low' : data.current.uvi <= 5 ? 'Moderate' : data.current.uvi <= 7 ? 'High' : data.current.uvi <= 10 ? 'Very High' : 'Extreme'})` : 'N/A';
                     visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
-                    sunrise = data.current.sunrise && data.current.sunset ? `Sunrise: ${new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, Sunset: ${new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'N/A';
-                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust === 0 ? 0 : data.current.wind_gust} mph` : 'N/A';
+                    if (data.current.sunrise && data.current.sunset) {
+                        sunrise = `${new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                        sunset = `${new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                    }
+                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : '0 mph';
                     pressure = data.current.pressure !== undefined ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
                     if (data.current.pressure !== undefined) {
                         pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
-                    } else {
-                        pressureDescription = 'Stable';
                     }
                     cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
                     precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
-                    rainVolume = data.daily[0].rain !== undefined ? `${data.daily[0].rain.toFixed(2)} mm` : 'N/A';
-                    snowVolume = data.daily[0].snow !== undefined ? `${data.daily[0].snow.toFixed(2)} mm` : 'N/A';
+                    rainVolume = data.daily[0].rain !== undefined ? `${data.daily[0].rain.toFixed(2)} mm` : '0 mm';
+                    snowVolume = data.daily[0].snow !== undefined ? `${data.daily[0].snow.toFixed(2)} mm` : '0 mm';
                     windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
                     moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
                     windChill = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
@@ -148,4 +149,44 @@
                 Feels Like: ${windChill}<br>
                 Humidity: ${humidity}<br>
                 Cloud Cover: ${cloudCover}<br>
-                Wind Speed:
+                Wind Speed: ${windSpeed}<br>
+                Wind Gust: ${windGust}<br>
+                Wind Direction: ${windDirection}<br>
+                Pressure: ${pressure} (${pressureDescription})<br>
+                UV Index: ${uvIndex}<br>
+                Visibility: ${visibility}<br>
+                Sunrise: ${sunrise}, Sunset: ${sunset}<br>
+                Moon Phase: ${moonPhase}<br>
+                Precipitation Probability: ${precipitationProbability}
+            `;
+            if (rainVolume !== '0 mm') weatherHTML += `<br>Rain Volume: ${rainVolume}`;
+            if (snowVolume !== '0 mm') weatherHTML += `<br>Snow Volume: ${snowVolume}`;
+            document.getElementById('weather').innerHTML = weatherHTML;
+        }
+
+        function getMoonPhaseDescription(phase) {
+            if (phase === 0 || phase === 1) {
+                return 'New Moon';
+            } else if (phase > 0 && phase < 0.25) {
+                return 'Waxing Crescent';
+            } else if (phase === 0.25) {
+                return 'First Quarter';
+            } else if (phase > 0.25 && phase < 0.5) {
+                return 'Waxing Gibbous';
+            } else if (phase === 0.5) {
+                return 'Full Moon';
+            } else if (phase > 0.5 && phase < 0.75) {
+                return 'Waning Gibbous';
+            } else if (phase === 0.75) {
+                return 'Last Quarter';
+            } else {
+                return 'Waning Crescent';
+            }
+        }
+
+        // Update weather every 90 seconds
+        setInterval(updateWeather, 90000);
+        updateWeather(); // Initial call to display weather immediately
+    </script>
+</body>
+</html>
