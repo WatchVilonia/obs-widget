@@ -50,7 +50,8 @@
                 if (response.ok && response.status === 200) {
                     const data = await response.text();
                     const [temperature, conditionText, windSpeed, humidity, moonPhase, feelsLike, precipitation] = data.split('|');
-                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature.trim()}<br>Feels Like: ${feelsLike.trim()}<br>Precipitation: ${precipitation.trim()}<br>Condition: ${conditionText.trim()}<br>Moon Phase: ${moonPhase.trim()}<br>Wind: ${windSpeed.trim()}`;
+                    const precipitationInInches = (parseFloat(precipitation) / 25.4).toFixed(2);
+                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature.trim()}<br>Feels Like: ${feelsLike.trim()}<br>Precipitation: ${precipitationInInches} in<br>Condition: ${conditionText.trim()}<br>Moon Phase: ${moonPhase.trim()}<br>Wind: ${windSpeed.trim()}`;
 console.log('Weather data fetched successfully:', data);
 console.log('Weather data fetched successfully:', data);
 console.log('Weather data:', data);
