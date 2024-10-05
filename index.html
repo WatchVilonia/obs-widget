@@ -99,104 +99,111 @@
 
         // Function to update weather data from OpenWeatherMap with wttr.in fallback
         async function updateWeather() {
+            let temperature = 'N/A';
+            let windSpeed = 'N/A';
+            let humidity = 'N/A';
+            let conditionText = 'N/A';
+            let uvIndex = 'N/A';
+            let visibility = 'N/A';
+            let sunrise = 'N/A';
+            let sunset = 'N/A';
+            let windGust = 'N/A';
+            let pressure = 'N/A';
+            let pressureDescription = 'Stable';
+            let cloudCover = 'N/A';
+            let precipitationProbability = 'N/A';
+            let rainVolume = null;
+            let snowVolume = null;
+            let windDirection = 'N/A';
+            let moonPhase = 'N/A';
+            let windChill = 'N/A';
+
             try {
                 // Fetch weather data from OpenWeatherMap
                 const response = await fetch('https://api.openweathermap.org/data/3.0/onecall?lat=35.0834&lon=-92.2071&units=imperial&appid=23c8e12141a8159105784a15538b34fe');
                 if (response.ok) {
                     const data = await response.json();
-                    const temperature = `${data.current.temp ?? 'N/A'} °F`;
-                    const windSpeed = `${data.current.wind_speed ?? 'N/A'} mph`;
-                    const humidity = `${data.current.humidity ?? 'N/A'} %`;
-                    const conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
-                    const uvIndex = data.current.uvi ?? 'N/A';
-                    let uvIndexDescription = 'Low';
-                    if (uvIndex >= 3 && uvIndex < 6) {
-                        uvIndexDescription = 'Moderate';
-                    } else if (uvIndex >= 6 && uvIndex < 8) {
-                        uvIndexDescription = 'High';
-                    } else if (uvIndex >= 8 && uvIndex < 11) {
-                        uvIndexDescription = 'Very High';
-                    } else if (uvIndex >= 11) {
-                        uvIndexDescription = 'Extreme';
-                    }
-                    const visibility = data.current.visibility ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
-                    const sunrise = data.current.sunrise ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
-                    const sunset = data.current.sunset ? new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
-                    const windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : 'N/A';
-                    const pressure = data.current.pressure ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
-                    let pressureDescription = 'Stable';
+                    temperature = `${data.current.temp ?? 'N/A'} °F`;
+                    windSpeed = `${data.current.wind_speed ?? 'N/A'} mph`;
+                    humidity = `${data.current.humidity ?? 'N/A'} %`;
+                    conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
+                    uvIndex = data.current.uvi ?? 'N/A';
+                    visibility = data.current.visibility ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
+                    sunrise = data.current.sunrise ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                    sunset = data.current.sunset ? new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : 'N/A';
+                    pressure = data.current.pressure ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
                     if (data.current.pressure > 30.00) {
                         pressureDescription = 'High Pressure - Clear, calm weather likely';
                     } else if (data.current.pressure < 29.80) {
                         pressureDescription = 'Low Pressure - Cloudy or stormy conditions possible';
                     }
-                    const cloudCover = data.current.clouds ? `${data.current.clouds} %` : 'N/A';
-                    const precipitationProbability = `${(data.daily[0].pop * 100).toFixed(0)} %`;
-                    const rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
-                    const snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
-                    const windDirection = data.current.wind_deg ? `${data.current.wind_deg}°` : 'N/A';
-                    const moonPhase = data.daily[0].moon_phase ? `${data.daily[0].moon_phase}` : 'N/A';
-                    const windChill = data.current.feels_like ? `${data.current.feels_like} °F` : 'N/A';
-
-                    let weatherHTML = `
-                        <div class="weather-section">
-                            <strong>General Conditions:</strong><br>
-                            Temperature: ${temperature}<br>
-                            Condition: ${conditionText}<br>
-                            Feels Like: ${windChill}<br>
-                            Humidity: ${humidity}<br>
-                            Cloud Cover: ${cloudCover}<br>
-                        </div>
-                        <div class="weather-section">
-                            <strong>Wind Information:</strong><br>
-                            Wind Speed: ${windSpeed}<br>
-                            Wind Gust: ${windGust}<br>
-                            Wind Direction: ${windDirection}
-                        </div>
-                        <div class="weather-section">
-                            <strong>Pressure and Visibility:</strong><br>
-                            Pressure: ${pressure} (${pressureDescription})<br>
-                            Visibility: ${visibility}
-                        </div>
-                        <div class="weather-section">
-                            <strong>Sun and Moon:</strong><br>
-                            Sunrise: ${sunrise}<br>
-                            Sunset: ${sunset}<br>
-                            Moon Phase: ${moonPhase}
-                        </div>
-                        <div class="weather-section">
-                            <strong>UV Index and Precipitation:</strong><br>
-                            UV Index: ${uvIndex} (${uvIndexDescription})<br>
-                            Precipitation Probability: ${precipitationProbability}
-                        </div>
-                    `;
-                    if (rainVolume) weatherHTML += `<div class="weather-section">Rain Volume: ${rainVolume}</div>`;
-                    if (snowVolume) weatherHTML += `<div class="weather-section">Snow Volume: ${snowVolume}</div>`;
-                    document.getElementById('weather').innerHTML = weatherHTML;
+                    cloudCover = data.current.clouds ? `${data.current.clouds} %` : 'N/A';
+                    precipitationProbability = `${(data.daily[0].pop * 100).toFixed(0)} %`;
+                    rainVolume = data.daily[0].rain ? `${data.daily[0].rain.toFixed(2)} mm` : null;
+                    snowVolume = data.daily[0].snow ? `${data.daily[0].snow.toFixed(2)} mm` : null;
+                    windDirection = data.current.wind_deg ? `${data.current.wind_deg}°` : 'N/A';
+                    moonPhase = data.daily[0].moon_phase ? `${data.daily[0].moon_phase}` : 'N/A';
+                    windChill = data.current.feels_like ? `${data.current.feels_like} °F` : 'N/A';
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
             } catch (error) {
                 console.error('Primary source failed, attempting fallback:', error);
-                updateWeatherFallback();
             }
-        }
 
-        // Function to fetch weather data from wttr.in as a fallback
-        async function updateWeatherFallback() {
+            // Fetch data from wttr.in as a fallback for any missing fields
             try {
                 const responseFallback = await fetch(`https://wttr.in/Vilonia?format=%t|%C|%w|%h&_=${new Date().getTime()}`);
                 if (responseFallback.ok) {
                     const data = await responseFallback.text();
-                    const [temperature, conditionText, windSpeed, humidity] = data.split('|').map(value => value.trim() ? value.trim() : 'N/A');
-                    document.getElementById('weather').innerHTML = `<strong>Weather in Vilonia:</strong><br>Temperature: ${temperature}<br>Condition: ${conditionText}<br>Wind: ${windSpeed}<br>Humidity: ${humidity}`;
+                    const [fallbackTemp, fallbackCondition, fallbackWind, fallbackHumidity] = data.split('|').map(value => value.trim() ? value.trim() : 'N/A');
+                    if (temperature === 'N/A') temperature = fallbackTemp;
+                    if (conditionText === 'N/A') conditionText = fallbackCondition;
+                    if (windSpeed === 'N/A') windSpeed = fallbackWind;
+                    if (humidity === 'N/A') humidity = fallbackHumidity;
                 } else {
-                    document.getElementById('weather').textContent = 'Weather data unavailable';
+                    console.warn('Fallback source data unavailable');
                 }
             } catch (fallbackError) {
-                document.getElementById('weather').textContent = 'Error retrieving weather data';
                 console.error('Error fetching weather data from fallback source:', fallbackError);
             }
+
+            let weatherHTML = `
+                <div class="weather-section">
+                    <strong>General Conditions:</strong><br>
+                    Temperature: ${temperature}<br>
+                    Condition: ${conditionText}<br>
+                    Feels Like: ${windChill}<br>
+                    Humidity: ${humidity}<br>
+                    Cloud Cover: ${cloudCover}<br>
+                </div>
+                <div class="weather-section">
+                    <strong>Wind Information:</strong><br>
+                    Wind Speed: ${windSpeed}<br>
+                    Wind Gust: ${windGust}<br>
+                    Wind Direction: ${windDirection}
+                </div>
+                <div class="weather-section">
+                    <strong>Pressure and Visibility:</strong><br>
+                    Pressure: ${pressure} (${pressureDescription})<br>
+                    Visibility: ${visibility}
+                </div>
+                <div class="weather-section">
+                    <strong>Sun and Moon:</strong><br>
+                    Sunrise: ${sunrise}<br>
+                    Sunset: ${sunset}<br>
+                    Moon Phase: ${moonPhase}
+                </div>
+                <div class="weather-section">
+                    <strong>UV Index and Precipitation:</strong><br>
+                    UV Index: ${uvIndex}<br>
+                    Precipitation Probability: ${precipitationProbability}
+                </div>
+            `;
+            if (rainVolume) weatherHTML += `<div class="weather-section">Rain Volume: ${rainVolume}</div>`;
+            if (snowVolume) weatherHTML += `<div class="weather-section">Snow Volume: ${snowVolume}</div>`;
+            document.getElementById('weather').innerHTML = weatherHTML;
         }
 
         // Update weather every 90 seconds
