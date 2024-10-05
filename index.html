@@ -132,15 +132,51 @@
                 console.error('Primary source failed, attempting fallback:', error);
             }
 
-            // Fetch data from wttr.in as a fallback for any missing fields
-            try {
-                const responseFallback = await fetch(`https://wttr.in/Vilonia?format=%t|%C|%w|%h|%p|%P&_=${new Date().getTime()}`);
-                if (responseFallback.ok) {
-                    const data = await responseFallback.text();
-                    const [fallbackTemp, fallbackCondition, fallbackWind, fallbackHumidity, fallbackAQI, fallbackPollen] = data.split('|').map(value => value.trim() ? value.trim() : 'N/A');
-                    if (temperature === 'N/A') temperature = fallbackTemp;
-                    if (conditionText === 'N/A') conditionText = fallbackCondition;
-                    if (windSpeed === 'N/A') windSpeed = fallbackWind;
-                    if (humidity === 'N/A') humidity = fallbackHumidity;
-                    if (aqi === 'N/A') aqi = fallbackAQI;
-                    if (pollen
+            // Displaying weather information
+            let weatherHTML = `
+                <strong>Weather in Vilonia:</strong><br>
+                Temperature: ${temperature}<br>
+                Humidity: ${humidity}<br>
+                Feels Like: ${windChill} ${feelsLikeContext}<br>
+                Wind Speed: ${windSpeed}<br>
+                Wind Gust: ${windGust}<br>
+                Wind Direction: ${windDirection}<br>
+                Precipitation Probability: ${precipitationProbability}<br>
+                Precipitation Type: ${precipitationType}<br>
+                Cloud Cover: ${cloudCover}<br>
+                Condition: ${conditionText}<br>
+                Visibility: ${visibility}<br>
+                UV Index: ${uvIndex}<br>
+                Sunrise/Sunset: Sunrise: ${sunrise}, Sunset: ${sunset}<br>
+                Moon Phase: ${moonPhase}<br>
+                Pressure: ${pressure} (${pressureDescription})
+            `;
+            document.getElementById('weather').innerHTML = weatherHTML;
+        }
+
+        function getMoonPhaseDescription(phase) {
+            if (phase === 0 || phase === 1) {
+                return 'New Moon';
+            } else if (phase > 0 && phase < 0.25) {
+                return 'Waxing Crescent';
+            } else if (phase === 0.25) {
+                return 'First Quarter';
+            } else if (phase > 0.25 && phase < 0.5) {
+                return 'Waxing Gibbous';
+            } else if (phase === 0.5) {
+                return 'Full Moon';
+            } else if (phase > 0.5 && phase < 0.75) {
+                return 'Waning Gibbous';
+            } else if (phase === 0.75) {
+                return 'Last Quarter';
+            } else {
+                return 'Waning Crescent';
+            }
+        }
+
+        // Update weather every 90 seconds
+        setInterval(updateWeather, 90000);
+        updateWeather(); // Initial call to display weather immediately
+    </script>
+</body>
+</html>
