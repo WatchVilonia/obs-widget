@@ -136,7 +136,7 @@
 
             try {
                 // Fetch weather data from OpenWeather API directly
-                const apiKey = '23c8e12141a8159105784a15538b34fe'; // This will be replaced by GitHub Actions
+                const apiKey = 'YOUR_OPENWEATHER_API_KEY'; // Replace with your OpenWeather API key
                 const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=35.0834&lon=-92.2071&units=imperial&appid=${apiKey}`);
                 
                 if (response.ok) {
@@ -222,4 +222,36 @@
                 return 'Waxing Gibbous';
             } else if (phase === 0.5) {
                 return 'Full Moon';
-            } else if (phase > 0.5
+            } else if (phase > 0.5 && phase < 0.75) {
+                return 'Waning Gibbous';
+            } else if (phase === 0.75) {
+                return 'Last Quarter';
+            } else {
+                return 'Waning Crescent';
+            }
+        }
+
+        // Update weather every 90 seconds
+        setInterval(updateWeather, 90000);
+        updateWeather(); // Initial call to display weather immediately
+
+        // Function to update the next event countdown (either sunrise or sunset)
+        function updateNextEventCountdown() {
+            const now = new Date();
+            let nextEvent, nextEventName;
+
+            if (globalSunrise && globalSunrise > now) {
+                nextEvent = globalSunrise;
+                nextEventName = 'Sunrise';
+            } else if (globalSunset && globalSunset > now) {
+                nextEvent = globalSunset;
+                nextEventName = 'Sunset';
+            } else {
+                // If no events left today, show the next event as being tomorrow
+                nextEvent = globalSunrise ? new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(globalSunset.getTime() + 24 * 60 * 60 * 1000);
+                nextEventName = globalSunrise ? 'Sunrise' : 'Sunset';
+            }
+
+            if (nextEvent) {
+                const timeUntilEvent = nextEvent - now;
+               
