@@ -244,19 +244,27 @@
                 nextEventName = sunrise !== 'N/A' ? 'Sunrise' : 'Sunset';
             }
 
-            const timeUntilEvent = nextEvent - now;
-            const hours = Math.floor((timeUntilEvent / (1000 * 60 * 60)) % 24);
-            const minutes = Math.floor((timeUntilEvent / (1000 * 60)) % 60);
-            const seconds = Math.floor((timeUntilEvent / 1000) % 60);
+            if (nextEvent) {
+                const timeUntilEvent = nextEvent - now;
+                const hours = Math.floor((timeUntilEvent / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((timeUntilEvent / (1000 * 60)) % 60);
+                const seconds = Math.floor((timeUntilEvent / 1000) % 60);
 
-            document.getElementById('next-event-countdown').innerHTML = `<strong>${nextEventName} in:</strong> ${hours}h ${minutes}m ${seconds}s`;
+                document.getElementById('next-event-countdown').innerHTML = `<strong>${nextEventName} in:</strong> ${hours}h ${minutes}m ${seconds}s`;
+            }
         }
 
         // Update weather every 90 seconds
         setInterval(updateWeather, 90000);
         updateWeather(); // Initial call to display weather immediately
+
         // Update countdown every second
-        setInterval(() => updateNextEventCountdown(new Date(), new Date()), 1000);
+        setInterval(() => {
+            const now = new Date();
+            const sunrise = document.getElementById('weather-right').querySelector('strong:contains("Sunrise")') ? new Date(now.setHours(6, 0, 0, 0)) : 'N/A';
+            const sunset = document.getElementById('weather-right').querySelector('strong:contains("Sunset")') ? new Date(now.setHours(18, 0, 0, 0)) : 'N/A';
+            updateNextEventCountdown(sunrise, sunset);
+        }, 1000);
     </script>
 </body>
 </html>
