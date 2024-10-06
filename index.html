@@ -126,17 +126,49 @@
 
         // Function to update weather data from OpenWeatherMap with wttr.in fallback
         async function updateWeather() {
-            let sunrise = 'N/A', sunset = 'N/A';
+            let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
+            let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
+            let cloudCover = 'N/A', precipitationProbability = 'N/A', rainVolume = 'N/A', snowVolume = 'N/A', windDirection = 'N/A';
+            let moonPhase = 'N/A', windChill = 'N/A', feelsLikeContext = '', precipitationType = 'N/A';
+            let aqi = 'N/A', pollenCount = 'N/A';
 
             try {
                 // Fetch weather data from OpenWeatherMap
                 const response = await fetch('https://api.openweathermap.org/data/3.0/onecall?lat=35.0834&lon=-92.2071&units=imperial&appid=23c8e12141a8159105784a15538b34fe');
                 if (response.ok) {
                     const data = await response.json();
+                    temperature = data.current.temp !== undefined ? `${data.current.temp} °F` : 'N/A';
+                    windSpeed = data.current.wind_speed !== undefined ? `${data.current.wind_speed} mph` : 'N/A';
+                    humidity = data.current.humidity !== undefined ? `${data.current.humidity} %` : 'N/A';
+                    windChill = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
+                    feelsLikeContext = data.current.feels_like < data.current.temp ? '(Wind Chill)' : '(Heat Index)';
+                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : '0 mph';
+                    windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
+                    precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
+                    cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
+                    conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
+                    visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles (max ~10 miles)` : 'N/A';
+                    uvIndex = data.current.uvi !== undefined ? `${data.current.uvi} (Exposure risk: ${data.current.uvi <= 2 ? 'Low' : data.current.uvi <= 5 ? 'Moderate' : data.current.uvi <= 7 ? 'High' : data.current.uvi <= 10 ? 'Very High' : 'Extreme'})` : 'N/A';
                     if (data.current.sunrise && data.current.sunset) {
                         sunrise = new Date(data.current.sunrise * 1000);
                         sunset = new Date(data.current.sunset * 1000);
                     }
+                    moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
+                    pressure = data.current.pressure !== undefined ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
+                    if (data.current.pressure !== undefined) {
+                        pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
+                    }
+                    if (data.daily[0].rain) {
+                        precipitationType = 'Rain';
+                    } else if (data.daily[0].snow) {
+                        precipitationType = 'Snow';
+                    } else {
+                        precipitationType = 'None';
+                    }
+
+                    // Placeholder AQI and Pollen Count (can be replaced with actual API calls for real data)
+                    aqi = '50 (Good)'; // Example AQI value with descriptor
+                    pollenCount = 'Low'; // Example pollen count descriptor
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
@@ -144,8 +176,56 @@
                 console.error('Primary source failed, attempting fallback:', error);
             }
 
+            // Distribute weather information between left and right pods
+            let leftPodHTML = `
+                <strong>Temperature:</strong> ${temperature}<br>
+                <strong>Feels Like:</strong> ${windChill} ${feelsLikeContext}<br>
+                <strong>Humidity:</strong> ${humidity}<br>
+                <strong>Wind Speed:</strong> ${windSpeed}<br>
+                <strong>Wind Gust:</strong> ${windGust}<br>
+                <strong>Wind Direction:</strong> ${windDirection}<br>
+                <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
+                <strong>Precipitation Type:</strong> ${precipitationType}<br>
+                <strong>Precipitation Amount:</strong> ${rainVolume !== 'N/A' ? rainVolume : snowVolume !== 'N/A' ? snowVolume : 'None'}<br>
+            `;
+
+            let rightPodHTML = `
+                <strong>AQI:</strong> ${aqi}<br>
+                <strong>Pollen Count:</strong> ${pollenCount}<br>
+                <strong>Cloud Cover:</strong> ${cloudCover}<br>
+                <strong>Condition:</strong> ${conditionText}<br>
+                <strong>Visibility:</strong> ${visibility}<br>
+                <strong>UV Index:</strong> ${uvIndex}<br>
+                <strong>Moon Phase:</strong> ${moonPhase}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, Sunset: ${sunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br>
+                <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
+            `;
+
+            document.getElementById('weather-left').innerHTML = leftPodHTML;
+            document.getElementById('weather-right').innerHTML = rightPodHTML;
+
             // Update sunrise and sunset countdowns
             updateSunriseSunsetCountdown(sunrise, sunset);
+        }
+
+        function getMoonPhaseDescription(phase) {
+            if (phase === 0 || phase === 1) {
+                return 'New Moon';
+            } else if (phase > 0 && phase < 0.25) {
+                return 'Waxing Crescent';
+            } else if (phase === 0.25) {
+                return 'First Quarter';
+            } else if (phase > 0.25 && phase < 0.5) {
+                return 'Waxing Gibbous';
+            } else if (phase === 0.5) {
+                return 'Full Moon';
+            } else if (phase > 0.5 && phase < 0.75) {
+                return 'Waning Gibbous';
+            } else if (phase === 0.75) {
+                return 'Last Quarter';
+            } else {
+                return 'Waning Crescent';
+            }
         }
 
         // Function to update the sunrise and sunset countdowns
