@@ -81,8 +81,8 @@
     <div id="widget">
         <div id="day-time" style="font-weight: bold; font-size: 1.2em; color: rgba(255, 255, 255, 0.9);"></div>
         <div class="weather-container">
-            <div class="pod-left" id="weather-left"></div>
-            <div class="pod-right" id="weather-right"></div>
+            <div class="pod-left" id="weather-left">Loading weather data...</div>
+            <div class="pod-right" id="weather-right">Loading weather data...</div>
         </div>
         <div id="countdown-container">
             <div id="next-event-countdown">Loading next event...</div>
@@ -141,6 +141,7 @@
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Weather data fetched successfully:', data);
                     temperature = data.current.temp !== undefined ? `${data.current.temp} °F` : 'N/A';
                     windSpeed = data.current.wind_speed !== undefined ? `${data.current.wind_speed} mph` : 'N/A';
                     humidity = data.current.humidity !== undefined ? `${data.current.humidity} %` : 'N/A';
@@ -177,7 +178,7 @@
                     aqi = '50 (Good)'; // Example AQI value with descriptor
                     pollenCount = 'Low'; // Example pollen count descriptor
                 } else {
-                    throw new Error('Failed to fetch weather data');
+                    console.error('Failed to fetch weather data: ', response.status, response.statusText);
                 }
             } catch (error) {
                 console.error('Error fetching weather data:', error);
@@ -195,4 +196,30 @@
             `;
 
             let rightPodHTML = `
-                <strong>AQI:</
+                <strong>AQI:</strong> ${aqi}<br>
+                <strong>Pollen Count:</strong> ${pollenCount}<br>
+                <strong>Cloud Cover:</strong> ${cloudCover}<br>
+                <strong>Condition:</strong> ${conditionText}<br>
+                <strong>Visibility:</strong> ${visibility}<br>
+                <strong>UV Index:</strong> ${uvIndex}<br>
+                <strong>Moon Phase:</strong> ${moonPhase}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise ? globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}, Sunset: ${globalSunset ? globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br>
+                <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
+            `;
+
+            document.getElementById('weather-left').innerHTML = leftPodHTML;
+            document.getElementById('weather-right').innerHTML = rightPodHTML;
+        }
+
+        function getMoonPhaseDescription(phase) {
+            if (phase === 0 || phase === 1) {
+                return 'New Moon';
+            } else if (phase > 0 && phase < 0.25) {
+                return 'Waxing Crescent';
+            } else if (phase === 0.25) {
+                return 'First Quarter';
+            } else if (phase > 0.25 && phase < 0.5) {
+                return 'Waxing Gibbous';
+            } else if (phase === 0.5) {
+                return 'Full Moon';
+            } else if (phase > 0.5
