@@ -85,7 +85,7 @@
             <div class="pod-right" id="weather-right"></div>
         </div>
         <div id="countdown-container">
-            <div id="next-event-countdown"></div>
+            <div id="next-event-countdown">Loading next event...</div>
         </div>
         <div id="additional-text" style="padding-top: 4px;">
             <p><strong>Sponsored by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></strong></p>
@@ -239,7 +239,9 @@
                 nextEvent = sunset;
                 nextEventName = 'Sunset';
             } else {
-                return; // No need to show a countdown if no events are left today
+                // If no events left today, show the next event as being tomorrow
+                nextEvent = sunrise !== 'N/A' ? new Date(sunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(sunset.getTime() + 24 * 60 * 60 * 1000);
+                nextEventName = sunrise !== 'N/A' ? 'Sunrise' : 'Sunset';
             }
 
             const timeUntilEvent = nextEvent - now;
@@ -253,6 +255,8 @@
         // Update weather every 90 seconds
         setInterval(updateWeather, 90000);
         updateWeather(); // Initial call to display weather immediately
+        // Update countdown every second
+        setInterval(() => updateNextEventCountdown(new Date(), new Date()), 1000);
     </script>
 </body>
 </html>
