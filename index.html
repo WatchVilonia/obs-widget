@@ -137,15 +137,10 @@
             try {
                 // Fetch weather data from OpenWeather API directly
                 const apiKey = '23c8e12141a8159105784a15538b34fe'; // This will be replaced by GitHub Actions
-                const response = await fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=35.0834&lon=-92.2071&units=imperial&appid=${apiKey}`);
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=35.0834&lon=-92.2071&units=imperial&appid=${apiKey}`);
                 
-                // Log response status and content
-                console.log('Weather API Response Status:', response.status);
-
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('Weather Data:', data); // Log the complete data to the console
-                    
                     temperature = data.current.temp !== undefined ? `${data.current.temp} °F` : 'N/A';
                     windSpeed = data.current.wind_speed !== undefined ? `${data.current.wind_speed} mph` : 'N/A';
                     humidity = data.current.humidity !== undefined ? `${data.current.humidity} %` : 'N/A';
@@ -196,4 +191,8 @@
                 <strong>Wind Speed:</strong> ${windSpeed}<br>
                 <strong>Wind Gust:</strong> ${windGust}<br>
                 <strong>Wind Direction:</strong> ${windDirection}<br>
-                <strong>Precipitation Probability:</strong> ${precipitationProbability}<
+                <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
+            `;
+
+            let rightPodHTML = `
+                <strong>AQI:</
