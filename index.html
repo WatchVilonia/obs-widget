@@ -239,8 +239,7 @@
                 nextEvent = sunset;
                 nextEventName = 'Sunset';
             } else {
-                document.getElementById('next-event-countdown').innerHTML = `<strong>Next Event:</strong> No upcoming events today`;
-                return;
+                return; // No need to show a countdown if no events are left today
             }
 
             const timeUntilEvent = nextEvent - now;
