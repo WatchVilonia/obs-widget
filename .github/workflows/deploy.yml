@@ -11,14 +11,14 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Replace API Key Placeholder
         run: |
           sed -i 's/API_KEY_PLACEHOLDER/${{ secrets.OPENWEATHER_API_KEY }}/g' index.html
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./
