@@ -95,6 +95,7 @@
     <script>
         let globalSunrise = null;
         let globalSunset = null;
+        let updateInterval = null;
 
         // Function to update the time, date, and day of the week
         function updateClock() {
@@ -172,7 +173,7 @@
             }
 
             // Function to display weather data from OpenWeatherMap
-            function displayWeatherData(data) {
+            function displayWeatherData() {
                 let leftPodHTML = `
                     <strong>Temperature:</strong> ${temperature}<br>
                     <strong>Feels Like:</strong> ${windChill}<br>
@@ -216,6 +217,8 @@
                 document.getElementById('weather-left').innerHTML = leftPodHTML;
                 document.getElementById('weather-right').innerHTML = rightPodHTML;
             }
+
+            displayWeatherData(); // Display data after fetching
         }
 
         // Function to update the next event countdown (either sunrise or sunset)
@@ -245,9 +248,31 @@
             }
         }
 
-        // Update weather every 90 seconds
-        setInterval(updateWeather, 90000);
-        updateWeather(); // Initial call to display weather immediately
+        // Function to set dynamic update interval based on the time of day
+        function setDynamicUpdateInterval() {
+            const now = new Date();
+            let interval = 90000; // Default interval: 90 seconds
+
+            if (globalSunrise && globalSunset) {
+                if (now >= globalSunrise && now <= globalSunset) {
+                    // Between sunrise and sunset: update every 30 seconds
+                    interval = 30000;
+                } else if (now > globalSunset || now < globalSunrise) {
+                    // After sunset, especially after midnight: update every 10 minutes
+                    interval = 600000;
+                }
+            }
+
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+
+            updateInterval = setInterval(updateWeather, interval);
+            updateWeather(); // Initial call to display weather immediately
+        }
+
+        // Set the dynamic update interval
+        setDynamicUpdateInterval();
 
         // Update countdown every second
         setInterval(updateNextEventCountdown, 1000);
