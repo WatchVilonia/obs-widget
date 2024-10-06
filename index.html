@@ -27,7 +27,7 @@
         }
 
         p {
-            padding-bottom: 16px;
+            padding-bottom: 8px;
         }
 
         #time {
@@ -84,7 +84,7 @@
             <div class="pod-left" id="weather-left"></div>
             <div class="pod-right" id="weather-right"></div>
         </div>
-        <div id="additional-text" style="padding-top: 8px;">
+        <div id="additional-text" style="padding-top: 4px;">
             <p><strong>Sponsered by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></strong></p>
         </div>
     </div>
@@ -113,7 +113,7 @@
             const dayOfWeek = daysOfWeek[now.getDay()];
 
             // Displaying day of the week, date, and time on the same line
-            document.getElementById('day-time').innerHTML = `${dayOfWeek}, ${month}/${day}/${year} - ${hours}:${minutes}:${now.getSeconds().toString().padStart(2, '0')} ${amPm} <br><span style='font-size: 0.9em;'>Camera Elev: ~640' - Vilonia Elev: 312' - Facing NNW, City ~4 mi</span>`;
+            document.getElementById('day-time').innerHTML = `${dayOfWeek}, ${month}/${day}/${year} - ${hours}:${minutes}:${now.getSeconds().toString().padStart(2, '0')} ${amPm} <br><span style='font-size: 0.9em;'>Camera Facing True North - City ~4 mi NNW of Camera - Camera Elev: ~640' - Vilonia Elev: 312'</span>`;
         }
 
         // Function to refresh clock data every second
