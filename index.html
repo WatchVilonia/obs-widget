@@ -93,6 +93,9 @@
     </div>
 
     <script>
+        let globalSunrise = null;
+        let globalSunset = null;
+
         // Function to update the time, date, and day of the week
         function updateClock() {
             const now = new Date();
@@ -149,8 +152,8 @@
                     visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles (max ~10 miles)` : 'N/A';
                     uvIndex = data.current.uvi !== undefined ? `${data.current.uvi} (Exposure risk: ${data.current.uvi <= 2 ? 'Low' : data.current.uvi <= 5 ? 'Moderate' : data.current.uvi <= 7 ? 'High' : data.current.uvi <= 10 ? 'Very High' : 'Extreme'})` : 'N/A';
                     if (data.current.sunrise && data.current.sunset) {
-                        sunrise = new Date(data.current.sunrise * 1000);
-                        sunset = new Date(data.current.sunset * 1000);
+                        globalSunrise = new Date(data.current.sunrise * 1000);
+                        globalSunset = new Date(data.current.sunset * 1000);
                     }
                     moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
                     pressure = data.current.pressure !== undefined ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
@@ -196,15 +199,12 @@
                 <strong>Visibility:</strong> ${visibility}<br>
                 <strong>UV Index:</strong> ${uvIndex}<br>
                 <strong>Moon Phase:</strong> ${moonPhase}<br>
-                <strong>Sunrise/Sunset:</strong> Sunrise: ${sunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, Sunset: ${sunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, Sunset: ${globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br>
                 <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
             `;
 
             document.getElementById('weather-left').innerHTML = leftPodHTML;
             document.getElementById('weather-right').innerHTML = rightPodHTML;
-
-            // Update next event countdown
-            updateNextEventCountdown(sunrise, sunset);
         }
 
         function getMoonPhaseDescription(phase) {
@@ -228,20 +228,20 @@
         }
 
         // Function to update the next event countdown (either sunrise or sunset)
-        function updateNextEventCountdown(sunrise, sunset) {
+        function updateNextEventCountdown() {
             const now = new Date();
             let nextEvent, nextEventName;
 
-            if (sunrise !== 'N/A' && sunrise > now) {
-                nextEvent = sunrise;
+            if (globalSunrise && globalSunrise > now) {
+                nextEvent = globalSunrise;
                 nextEventName = 'Sunrise';
-            } else if (sunset !== 'N/A' && sunset > now) {
-                nextEvent = sunset;
+            } else if (globalSunset && globalSunset > now) {
+                nextEvent = globalSunset;
                 nextEventName = 'Sunset';
             } else {
                 // If no events left today, show the next event as being tomorrow
-                nextEvent = sunrise !== 'N/A' ? new Date(sunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(sunset.getTime() + 24 * 60 * 60 * 1000);
-                nextEventName = sunrise !== 'N/A' ? 'Sunrise' : 'Sunset';
+                nextEvent = globalSunrise ? new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(globalSunset.getTime() + 24 * 60 * 60 * 1000);
+                nextEventName = globalSunrise ? 'Sunrise' : 'Sunset';
             }
 
             if (nextEvent) {
@@ -259,12 +259,7 @@
         updateWeather(); // Initial call to display weather immediately
 
         // Update countdown every second
-        setInterval(() => {
-            const now = new Date();
-            const sunrise = document.getElementById('weather-right').querySelector('strong:contains("Sunrise")') ? new Date(now.setHours(6, 0, 0, 0)) : 'N/A';
-            const sunset = document.getElementById('weather-right').querySelector('strong:contains("Sunset")') ? new Date(now.setHours(18, 0, 0, 0)) : 'N/A';
-            updateNextEventCountdown(sunrise, sunset);
-        }, 1000);
+        setInterval(updateNextEventCountdown, 1000);
     </script>
 </body>
 </html>
