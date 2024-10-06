@@ -85,8 +85,7 @@
             <div class="pod-right" id="weather-right"></div>
         </div>
         <div id="countdown-container">
-            <div id="sunrise-countdown"></div>
-            <div id="sunset-countdown"></div>
+            <div id="next-event-countdown"></div>
         </div>
         <div id="additional-text" style="padding-top: 4px;">
             <p><strong>Sponsored by Arkansas Turf Management<br>Call or text: 501-231-4681 - <a href="https://ArkTurf.com" target="_blank">ArkTurf.com</a></strong></p>
@@ -204,8 +203,8 @@
             document.getElementById('weather-left').innerHTML = leftPodHTML;
             document.getElementById('weather-right').innerHTML = rightPodHTML;
 
-            // Update sunrise and sunset countdowns
-            updateSunriseSunsetCountdown(sunrise, sunset);
+            // Update next event countdown
+            updateNextEventCountdown(sunrise, sunset);
         }
 
         function getMoonPhaseDescription(phase) {
@@ -228,32 +227,28 @@
             }
         }
 
-        // Function to update the sunrise and sunset countdowns
-        function updateSunriseSunsetCountdown(sunrise, sunset) {
+        // Function to update the next event countdown (either sunrise or sunset)
+        function updateNextEventCountdown(sunrise, sunset) {
             const now = new Date();
-            if (sunrise !== 'N/A') {
-                const timeUntilSunrise = sunrise - now;
-                if (timeUntilSunrise > 0) {
-                    const hours = Math.floor((timeUntilSunrise / (1000 * 60 * 60)) % 24);
-                    const minutes = Math.floor((timeUntilSunrise / (1000 * 60)) % 60);
-                    const seconds = Math.floor((timeUntilSunrise / 1000) % 60);
-                    document.getElementById('sunrise-countdown').innerHTML = `<strong>Sunrise in:</strong> ${hours}h ${minutes}m ${seconds}s`;
-                } else {
-                    document.getElementById('sunrise-countdown').innerHTML = `<strong>Sunrise:</strong> Happening now or already occurred today`;
-                }
+            let nextEvent, nextEventName;
+
+            if (sunrise !== 'N/A' && sunrise > now) {
+                nextEvent = sunrise;
+                nextEventName = 'Sunrise';
+            } else if (sunset !== 'N/A' && sunset > now) {
+                nextEvent = sunset;
+                nextEventName = 'Sunset';
+            } else {
+                document.getElementById('next-event-countdown').innerHTML = `<strong>Next Event:</strong> No upcoming events today`;
+                return;
             }
 
-            if (sunset !== 'N/A') {
-                const timeUntilSunset = sunset - now;
-                if (timeUntilSunset > 0) {
-                    const hours = Math.floor((timeUntilSunset / (1000 * 60 * 60)) % 24);
-                    const minutes = Math.floor((timeUntilSunset / (1000 * 60)) % 60);
-                    const seconds = Math.floor((timeUntilSunset / 1000) % 60);
-                    document.getElementById('sunset-countdown').innerHTML = `<strong>Sunset in:</strong> ${hours}h ${minutes}m ${seconds}s`;
-                } else {
-                    document.getElementById('sunset-countdown').innerHTML = `<strong>Sunset:</strong> Happening now or already occurred today`;
-                }
-            }
+            const timeUntilEvent = nextEvent - now;
+            const hours = Math.floor((timeUntilEvent / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((timeUntilEvent / (1000 * 60)) % 60);
+            const seconds = Math.floor((timeUntilEvent / 1000) % 60);
+
+            document.getElementById('next-event-countdown').innerHTML = `<strong>${nextEventName} in:</strong> ${hours}h ${minutes}m ${seconds}s`;
         }
 
         // Update weather every 90 seconds
