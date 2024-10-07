@@ -136,7 +136,7 @@
 
             try {
                 // Fetch weather data from OpenWeatherMap
-                const response = await fetch('https://api.openweathermap.org/data/3.0/onecall?lat=35.0802&lon=-92.1902&units=imperial&appid=99923c8e12141a8159105784a15538b34fe');
+                const response = await fetch('https://api.openweathermap.org/data/3.0/onecall?lat=34.73&lon=-92.24&units=imperial&appid=23c8e12141a8159105784a15538b34fe');
                 if (response.ok) {
                     const data = await response.json();
                     temperature = data.current.temp !== undefined ? `${data.current.temp} °F` : 'N/A';
@@ -179,14 +179,14 @@
 
                 // Fetch weather data from NOAA as a fallback
                 try {
-                    const noaaResponse = await fetch('https://api.weather.gov/gridpoints/LZK/49,70/forecast');
+                    const noaaResponse = await fetch('https://api.weather.gov/gridpoints/LZK/56,69/forecast');
                     if (noaaResponse.ok) {
                         const noaaData = await noaaResponse.json();
                         const period = noaaData.properties.periods[0];
 
                         temperature = period.temperature ? `${period.temperature} °F` : 'N/A';
                         conditionText = period.shortForecast || 'N/A';
-                        windSpeed = period.windSpeed ? `${period.windSpeed} mph` : 'N/A';
+                        windSpeed = period.windSpeed ? `${period.windSpeed.split(' ')[0]} mph` : 'N/A';
                         windDirection = period.windDirection || 'N/A';
                     } else {
                         throw new Error('NOAA fallback failed');
