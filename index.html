@@ -213,6 +213,7 @@
                         pressure = currentObservation.SLP ? `${(currentObservation.SLP / 33.8639).toFixed(2)} inHg` : 'N/A';
                         conditionText = currentObservation.Weather || 'N/A';
                         // Setting fallback sunrise/sunset values (mock values for continuity)
+                        const now = new Date();
                         globalSunrise = globalSunrise || new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0);
                         globalSunset = globalSunset || new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0);
 
@@ -237,13 +238,19 @@
                 <strong>Wind Direction:</strong> ${windDirection}<br>
                 <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
                 <strong>Precipitation Type:</strong> ${precipitationType}<br>
-                
-                
             `;
 
-            $1<strong>AQI:</strong> ${aqi}<br>
-<strong>Pollen Count:</strong> ${pollenCount}<br>
-$2            `;
+            let rightPodHTML = `
+                <strong>AQI:</strong> ${aqi}<br>
+                <strong>Pollen Count:</strong> ${pollenCount}<br>
+                <strong>Cloud Cover:</strong> ${cloudCover}<br>
+                <strong>Condition:</strong> ${conditionText}<br>
+                <strong>Visibility:</strong> ${visibility}<br>
+                <strong>UV Index:</strong> ${uvIndex}<br>
+                <strong>Moon Phase:</strong> ${moonPhase}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise ? globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}, Sunset: ${globalSunset ? globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br>
+                <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
+            `;
 
             document.getElementById('weather-left').innerHTML = leftPodHTML;
             document.getElementById('weather-right').innerHTML = rightPodHTML;
