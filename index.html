@@ -163,7 +163,7 @@
             let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
             let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
             let cloudCover = 'N/A', precipitationProbability = 'N/A', precipitationType = 'N/A', windDirection = 'N/A';
-            let feelsLike = 'N/A', moonPhase = 'N/A';
+            let feelsLike = 'N/A', moonPhase = 'N/A', aqi = 'N/A', pollenCount = 'N/A';
 
             try {
                 // Fetch weather data from OpenWeatherMap
@@ -188,6 +188,10 @@
                     }
                     pressure = data.current.pressure !== undefined ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
                     pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
+
+                    // Placeholder AQI and Pollen Count (mock data as OpenWeather does not provide these)
+                    aqi = '50 (Good)';
+                    pollenCount = 'Low';
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
@@ -211,6 +215,10 @@
                         // Setting fallback sunrise/sunset values (mock values for continuity)
                         globalSunrise = globalSunrise || new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0);
                         globalSunset = globalSunset || new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0);
+
+                        // Placeholder AQI and Pollen Count (mock data)
+                        aqi = '50 (Good)';
+                        pollenCount = 'Low';
                     } else {
                         throw new Error('NOAA fallback failed');
                     }
@@ -229,6 +237,8 @@
                 <strong>Wind Direction:</strong> ${windDirection}<br>
                 <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
                 <strong>Precipitation Type:</strong> ${precipitationType}<br>
+                <strong>AQI:</strong> ${aqi}<br>
+                <strong>Pollen Count:</strong> ${pollenCount}<br>
             `;
 
             let rightPodHTML = `
