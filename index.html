@@ -126,7 +126,7 @@
         setInterval(updateClock, 1000);
         updateClock(); // Initial call to display right away
 
-        // Function to update weather data from OpenWeatherMap with wttr.in fallback
+        // Function to update weather data from OpenWeatherMap with NOAA fallback
         async function updateWeather() {
             let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
             let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
@@ -176,6 +176,27 @@
                 }
             } catch (error) {
                 console.error('Primary source failed, attempting fallback:', error);
+
+                // Fetch weather data from NOAA as a fallback
+                try {
+                    const noaaResponse = await fetch('https://api.weather.gov/gridpoints/LZK/49,70/forecast');
+                    if (noaaResponse.ok) {
+                        const noaaData = await noaaResponse.json();
+                        const period = noaaData.properties.periods[0];
+
+                        temperature = period.temperature ? `${period.temperature} °F` : 'N/A';
+                        conditionText = period.shortForecast || 'N/A';
+                        windSpeed = period.windSpeed || 'N/A';
+                        windDirection = period.windDirection || 'N/A';
+                        // Placeholder for other weather values based on NOAA data
+                        sunrise = 'N/A'; // NOAA API does not provide sunrise/sunset data
+                        sunset = 'N/A';
+                    } else {
+                        throw new Error('NOAA fallback failed');
+                    }
+                } catch (fallbackError) {
+                    console.error('NOAA fallback failed:', fallbackError);
+                }
             }
 
             // Distribute weather information between left and right pods
@@ -199,7 +220,7 @@
                 <strong>Visibility:</strong> ${visibility}<br>
                 <strong>UV Index:</strong> ${uvIndex}<br>
                 <strong>Moon Phase:</strong> ${moonPhase}<br>
-                <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, Sunset: ${globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise ? globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}, Sunset: ${globalSunset ? globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br>
                 <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
             `;
 
