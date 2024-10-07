@@ -81,8 +81,8 @@
     <div id="widget">
         <div id="day-time" style="font-weight: bold; font-size: 1.2em; color: rgba(255, 255, 255, 0.9);"></div>
         <div class="weather-container">
-            <div class="pod-left" id="weather-left">Loading weather data...</div>
-            <div class="pod-right" id="weather-right">Loading weather data...</div>
+            <div class="pod-left" id="weather-left"></div>
+            <div class="pod-right" id="weather-right"></div>
         </div>
         <div id="countdown-container">
             <div id="next-event-countdown">Loading next event...</div>
@@ -130,7 +130,9 @@
         async function updateWeather() {
             let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
             let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
-            let cloudCover = 'N/A', precipitationProbability = 'N/A', windDirection = 'N/A';
+            let cloudCover = 'N/A', precipitationProbability = 'N/A', rainVolume = 'N/A', snowVolume = 'N/A', windDirection = 'N/A';
+            let moonPhase = 'N/A', windChill = 'N/A', feelsLikeContext = '', precipitationType = 'N/A';
+            let aqi = 'N/A', pollenCount = 'N/A';
 
             try {
                 // Fetch weather data from OpenWeatherMap
@@ -141,6 +143,7 @@
                     windSpeed = data.current.wind_speed !== undefined ? `${data.current.wind_speed} mph` : 'N/A';
                     humidity = data.current.humidity !== undefined ? `${data.current.humidity} %` : 'N/A';
                     windChill = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
+                    feelsLikeContext = data.current.feels_like < data.current.temp ? '(Wind Chill)' : '(Heat Index)';
                     windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : '0 mph';
                     windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
                     precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
@@ -152,69 +155,75 @@
                         globalSunrise = new Date(data.current.sunrise * 1000);
                         globalSunset = new Date(data.current.sunset * 1000);
                     }
+                    moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
+                    pressure = data.current.pressure !== undefined ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
+                    if (data.current.pressure !== undefined) {
+                        pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
+                    }
+                    if (data.daily[0].rain) {
+                        precipitationType = 'Rain';
+                    } else if (data.daily[0].snow) {
+                        precipitationType = 'Snow';
+                    } else {
+                        precipitationType = 'None';
+                    }
+
+                    // Placeholder AQI and Pollen Count (can be replaced with actual API calls for real data)
+                    aqi = '50 (Good)'; // Example AQI value with descriptor
+                    pollenCount = 'Low'; // Example pollen count descriptor
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
             } catch (error) {
                 console.error('Primary source failed, attempting fallback:', error);
-                try {
-                    // Fetch weather data from wttr.in as a fallback
-                    const wttrResponse = await fetch('https://wttr.in/Vilonia?format=j1');
-                    if (wttrResponse.ok) {
-                        const wttrData = await wttrResponse.json();
-                        displayWttrData(wttrData);
-                    } else {
-                        console.error('Fallback source wttr.in failed:', wttrResponse.statusText);
-                    }
-                } catch (wttrError) {
-                    console.error('Error fetching from wttr.in:', wttrError);
-                }
             }
 
-            // Function to display weather data from OpenWeatherMap
-            function displayWeatherData(data) {
-                let leftPodHTML = `
-                    <strong>Temperature:</strong> ${temperature}<br>
-                    <strong>Feels Like:</strong> ${windChill}<br>
-                    <strong>Humidity:</strong> ${humidity}<br>
-                    <strong>Wind Speed:</strong> ${windSpeed}<br>
-                    <strong>Wind Gust:</strong> ${windGust}<br>
-                    <strong>Wind Direction:</strong> ${windDirection}<br>
-                    <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
-                `;
+            // Distribute weather information between left and right pods
+            let leftPodHTML = `
+                <strong>Temperature:</strong> ${temperature}<br>
+                <strong>Feels Like:</strong> ${windChill} ${feelsLikeContext}<br>
+                <strong>Humidity:</strong> ${humidity}<br>
+                <strong>Wind Speed:</strong> ${windSpeed}<br>
+                <strong>Wind Gust:</strong> ${windGust}<br>
+                <strong>Wind Direction:</strong> ${windDirection}<br>
+                <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
+                <strong>Precipitation Type:</strong> ${precipitationType}<br>
+                <strong>Precipitation Amount:</strong> ${rainVolume !== 'N/A' ? rainVolume : snowVolume !== 'N/A' ? snowVolume : 'None'}<br>
+            `;
 
-                let rightPodHTML = `
-                    <strong>Cloud Cover:</strong> ${cloudCover}<br>
-                    <strong>Condition:</strong> ${conditionText}<br>
-                    <strong>Visibility:</strong> ${visibility}<br>
-                    <strong>UV Index:</strong> ${uvIndex}<br>
-                    <strong>Sunrise:</strong> ${globalSunrise ? globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br>
-                    <strong>Sunset:</strong> ${globalSunset ? globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br>
-                `;
+            let rightPodHTML = `
+                <strong>AQI:</strong> ${aqi}<br>
+                <strong>Pollen Count:</strong> ${pollenCount}<br>
+                <strong>Cloud Cover:</strong> ${cloudCover}<br>
+                <strong>Condition:</strong> ${conditionText}<br>
+                <strong>Visibility:</strong> ${visibility}<br>
+                <strong>UV Index:</strong> ${uvIndex}<br>
+                <strong>Moon Phase:</strong> ${moonPhase}<br>
+                <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, Sunset: ${globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br>
+                <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
+            `;
 
-                document.getElementById('weather-left').innerHTML = leftPodHTML;
-                document.getElementById('weather-right').innerHTML = rightPodHTML;
-            }
+            document.getElementById('weather-left').innerHTML = leftPodHTML;
+            document.getElementById('weather-right').innerHTML = rightPodHTML;
+        }
 
-            // Function to display weather data from wttr.in
-            function displayWttrData(data) {
-                let temperature = data.current_condition[0].temp_F ? `${data.current_condition[0].temp_F} °F` : 'N/A';
-                let windSpeed = data.current_condition[0].windspeedMiles ? `${data.current_condition[0].windspeedMiles} mph` : 'N/A';
-                let humidity = data.current_condition[0].humidity ? `${data.current_condition[0].humidity} %` : 'N/A';
-                let conditionText = data.current_condition[0].weatherDesc[0].value || 'N/A';
-
-                let leftPodHTML = `
-                    <strong>Temperature:</strong> ${temperature}<br>
-                    <strong>Humidity:</strong> ${humidity}<br>
-                    <strong>Wind Speed:</strong> ${windSpeed}<br>
-                `;
-
-                let rightPodHTML = `
-                    <strong>Condition:</strong> ${conditionText}<br>
-                `;
-
-                document.getElementById('weather-left').innerHTML = leftPodHTML;
-                document.getElementById('weather-right').innerHTML = rightPodHTML;
+        function getMoonPhaseDescription(phase) {
+            if (phase === 0 || phase === 1) {
+                return 'New Moon';
+            } else if (phase > 0 && phase < 0.25) {
+                return 'Waxing Crescent';
+            } else if (phase === 0.25) {
+                return 'First Quarter';
+            } else if (phase > 0.25 && phase < 0.5) {
+                return 'Waxing Gibbous';
+            } else if (phase === 0.5) {
+                return 'Full Moon';
+            } else if (phase > 0.5 && phase < 0.75) {
+                return 'Waning Gibbous';
+            } else if (phase === 0.75) {
+                return 'Last Quarter';
+            } else {
+                return 'Waning Crescent';
             }
         }
 
