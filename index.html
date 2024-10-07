@@ -163,7 +163,7 @@
             let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
             let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
             let cloudCover = 'N/A', precipitationProbability = 'N/A', precipitationType = 'N/A', windDirection = 'N/A';
-            let feelsLike = 'N/A';
+            let feelsLike = 'N/A', moonPhase = 'N/A';
 
             try {
                 // Fetch weather data from OpenWeatherMap
@@ -176,11 +176,12 @@
                     feelsLike = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
                     windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : 'N/A';
                     windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
-                    precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
+                    precipitationProbability = data.daily[0]?.pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
                     cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
                     conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
                     visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
                     uvIndex = data.current.uvi !== undefined ? `${data.current.uvi}` : 'N/A';
+                    moonPhase = data.daily[0]?.moon_phase !== undefined ? getMoonPhaseDescription(data.daily[0].moon_phase) : 'N/A';
                     if (data.current.sunrise && data.current.sunset) {
                         globalSunrise = new Date(data.current.sunrise * 1000);
                         globalSunset = new Date(data.current.sunset * 1000);
@@ -207,6 +208,9 @@
                         visibility = currentObservation.Visibility ? `${currentObservation.Visibility} miles` : 'N/A';
                         pressure = currentObservation.SLP ? `${(currentObservation.SLP / 33.8639).toFixed(2)} inHg` : 'N/A';
                         conditionText = currentObservation.Weather || 'N/A';
+                        // Setting fallback sunrise/sunset values (mock values for continuity)
+                        globalSunrise = globalSunrise || new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0);
+                        globalSunset = globalSunset || new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0);
                     } else {
                         throw new Error('NOAA fallback failed');
                     }
@@ -232,6 +236,7 @@
                 <strong>Condition:</strong> ${conditionText}<br>
                 <strong>Visibility:</strong> ${visibility}<br>
                 <strong>UV Index:</strong> ${uvIndex}<br>
+                <strong>Moon Phase:</strong> ${moonPhase}<br>
                 <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise ? globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}, Sunset: ${globalSunset ? globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br>
                 <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
             `;
