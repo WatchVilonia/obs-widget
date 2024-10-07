@@ -185,6 +185,7 @@
                     cloudCover = 'N/A',
                     precipitationProbability = 'N/A',
                     precipitationType = 'N/A',
+                    precipitationAmount = 'N/A',
                     windDirection = 'N/A',
                     feelsLike = 'N/A',
                     moonPhase = 'N/A',
@@ -206,6 +207,8 @@
                         windGust = current.wind_gust !== undefined ? `${current.wind_gust} mph` : 'N/A';
                         windDirection = current.wind_deg !== undefined ? `${current.wind_deg}°` : 'N/A';
                         precipitationProbability = daily?.pop !== undefined ? `${(daily.pop * 100).toFixed(0)} %` : 'N/A';
+                        precipitationType = current.rain ? 'Rain' : current.snow ? 'Snow' : 'None';
+                        precipitationAmount = current.rain?.['1h'] ? `${current.rain['1h']} mm` : current.snow?.['1h'] ? `${current.snow['1h']} mm` : '0 mm';
                         cloudCover = current.clouds !== undefined ? `${current.clouds} %` : 'N/A';
                         conditionText = current.weather ? current.weather[0].description : 'N/A';
                         visibility = current.visibility !== undefined ? `${(current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
@@ -254,6 +257,10 @@
                             // Placeholder AQI and Pollen Count (mock data)
                             aqi = '50 (Good)';
                             pollenCount = 'Low';
+
+                            // Precipitation data is not available from NOAA in this format
+                            precipitationType = 'N/A';
+                            precipitationAmount = 'N/A';
                         } else {
                             throw new Error('NOAA fallback request failed');
                         }
@@ -272,6 +279,7 @@
                     <strong>Wind Direction:</strong> ${windDirection}<br>
                     <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
                     <strong>Precipitation Type:</strong> ${precipitationType}<br>
+                    <strong>Precipitation Amount:</strong> ${precipitationAmount}<br>
                 `;
 
                 const rightPodHTML = `
