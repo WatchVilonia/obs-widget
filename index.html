@@ -130,9 +130,8 @@
         async function updateWeather() {
             let temperature = 'N/A', windSpeed = 'N/A', humidity = 'N/A', conditionText = 'N/A', uvIndex = 'N/A', visibility = 'N/A';
             let sunrise = 'N/A', sunset = 'N/A', windGust = 'N/A', pressure = 'N/A', pressureDescription = 'Stable';
-            let cloudCover = 'N/A', precipitationProbability = 'N/A', rainVolume = 'N/A', snowVolume = 'N/A', windDirection = 'N/A';
-            let moonPhase = 'N/A', windChill = 'N/A', feelsLikeContext = '', precipitationType = 'N/A';
-            let aqi = 'N/A', pollenCount = 'N/A';
+            let cloudCover = 'N/A', precipitationProbability = 'N/A', precipitationType = 'N/A', windDirection = 'N/A';
+            let feelsLike = 'N/A';
 
             try {
                 // Fetch weather data from OpenWeatherMap
@@ -142,31 +141,20 @@
                     temperature = data.current.temp !== undefined ? `${data.current.temp} °F` : 'N/A';
                     windSpeed = data.current.wind_speed !== undefined ? `${data.current.wind_speed} mph` : 'N/A';
                     humidity = data.current.humidity !== undefined ? `${data.current.humidity} %` : 'N/A';
-                    windChill = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
-                    feelsLikeContext = data.current.feels_like < data.current.temp ? '(Wind Chill)' : '(Heat Index)';
-                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : '0 mph';
+                    feelsLike = data.current.feels_like !== undefined ? `${data.current.feels_like} °F` : 'N/A';
+                    windGust = data.current.wind_gust !== undefined ? `${data.current.wind_gust} mph` : 'N/A';
                     windDirection = data.current.wind_deg !== undefined ? `${data.current.wind_deg}°` : 'N/A';
                     precipitationProbability = data.daily[0].pop !== undefined ? `${(data.daily[0].pop * 100).toFixed(0)} %` : 'N/A';
                     cloudCover = data.current.clouds !== undefined ? `${data.current.clouds} %` : 'N/A';
                     conditionText = data.current.weather ? data.current.weather[0].description : 'N/A';
-                    visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles (max ~10 miles)` : 'N/A';
-                    uvIndex = data.current.uvi !== undefined ? `${data.current.uvi} (Exposure risk: ${data.current.uvi <= 2 ? 'Low' : data.current.uvi <= 5 ? 'Moderate' : data.current.uvi <= 7 ? 'High' : data.current.uvi <= 10 ? 'Very High' : 'Extreme'})` : 'N/A';
+                    visibility = data.current.visibility !== undefined ? `${(data.current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
+                    uvIndex = data.current.uvi !== undefined ? `${data.current.uvi}` : 'N/A';
                     if (data.current.sunrise && data.current.sunset) {
                         globalSunrise = new Date(data.current.sunrise * 1000);
                         globalSunset = new Date(data.current.sunset * 1000);
                     }
-                    moonPhase = data.daily[0].moon_phase !== undefined ? `${data.daily[0].moon_phase} (${getMoonPhaseDescription(data.daily[0].moon_phase)})` : 'N/A';
                     pressure = data.current.pressure !== undefined ? `${(data.current.pressure * 0.02953).toFixed(2)} inHg` : 'N/A';
-                    if (data.current.pressure !== undefined) {
-                        pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
-                    }
-                    if (data.daily[0].rain) {
-                        precipitationType = 'Rain';
-                    } else if (data.daily[0].snow) {
-                        precipitationType = 'Snow';
-                    } else {
-                        precipitationType = 'None';
-                    }
+                    pressureDescription = data.current.pressure > 30.00 ? 'High Pressure - Clear, calm weather likely' : data.current.pressure < 29.80 ? 'Low Pressure - Cloudy or stormy conditions possible' : 'Stable';
                 } else {
                     throw new Error('OpenWeatherMap failed');
                 }
@@ -178,31 +166,15 @@
                     const noaaResponse = await fetch('https://forecast.weather.gov/MapClick.php?lat=35.0838662&lon=-92.200566&FcstType=json');
                     if (noaaResponse.ok) {
                         const noaaData = await noaaResponse.json();
-                        const currentPeriod = noaaData.currentobservation;
-                        const forecastPeriod = noaaData.data;
+                        const currentObservation = noaaData.currentobservation;
 
-                        temperature = currentPeriod.Temp !== undefined ? `${currentPeriod.Temp} °F` : 'N/A';
-                        conditionText = currentPeriod.Weather || 'N/A';
-                        windSpeed = currentPeriod.Winds !== undefined ? `${currentPeriod.Winds} mph` : 'N/A';
-                        windDirection = currentPeriod.Windd || 'N/A';
-                        humidity = currentPeriod.Relh !== undefined ? `${currentPeriod.Relh} %` : 'N/A';
-                        visibility = currentPeriod.Visibility !== undefined ? `${currentPeriod.Visibility} miles` : 'N/A';
-                        pressure = currentPeriod.SLP !== undefined ? `${(currentPeriod.SLP / 33.8639).toFixed(2)} inHg` : 'N/A';
-                        cloudCover = forecastPeriod.text[0].toLowerCase().includes('cloud') ? 'Cloudy' : 'Clear';
-                        if (forecastPeriod.temp[0]) {
-                            const highTemp = forecastPeriod.temp[0];
-                            feelsLikeContext = highTemp > temperature ? '(Feels Warmer)' : '(Feels Cooler)';
-                        }
-                        if (forecastPeriod.pop[0]) {
-                            precipitationProbability = `${forecastPeriod.pop[0]} %`;
-                        }
-                        if (forecastPeriod.text[0].toLowerCase().includes('rain')) {
-                            precipitationType = 'Rain';
-                        } else if (forecastPeriod.text[0].toLowerCase().includes('snow')) {
-                            precipitationType = 'Snow';
-                        } else {
-                            precipitationType = 'None';
-                        }
+                        temperature = currentObservation.Temp ? `${currentObservation.Temp} °F` : 'N/A';
+                        windSpeed = currentObservation.Winds ? `${currentObservation.Winds} mph` : 'N/A';
+                        windDirection = currentObservation.Windd ? `${currentObservation.Windd}°` : 'N/A';
+                        humidity = currentObservation.Relh ? `${currentObservation.Relh} %` : 'N/A';
+                        visibility = currentObservation.Visibility ? `${currentObservation.Visibility} miles` : 'N/A';
+                        pressure = currentObservation.SLP ? `${(currentObservation.SLP / 33.8639).toFixed(2)} inHg` : 'N/A';
+                        conditionText = currentObservation.Weather || 'N/A';
                     } else {
                         throw new Error('NOAA fallback failed');
                     }
@@ -214,14 +186,13 @@
             // Distribute weather information between left and right pods
             let leftPodHTML = `
                 <strong>Temperature:</strong> ${temperature}<br>
-                <strong>Feels Like:</strong> ${windChill} ${feelsLikeContext}<br>
+                <strong>Feels Like:</strong> ${feelsLike}<br>
                 <strong>Humidity:</strong> ${humidity}<br>
                 <strong>Wind Speed:</strong> ${windSpeed}<br>
                 <strong>Wind Gust:</strong> ${windGust}<br>
                 <strong>Wind Direction:</strong> ${windDirection}<br>
                 <strong>Precipitation Probability:</strong> ${precipitationProbability}<br>
                 <strong>Precipitation Type:</strong> ${precipitationType}<br>
-                <strong>Precipitation Amount:</strong> ${rainVolume !== 'N/A' ? rainVolume : snowVolume !== 'N/A' ? snowVolume : 'None'}<br>
             `;
 
             let rightPodHTML = `
@@ -229,7 +200,6 @@
                 <strong>Condition:</strong> ${conditionText}<br>
                 <strong>Visibility:</strong> ${visibility}<br>
                 <strong>UV Index:</strong> ${uvIndex}<br>
-                <strong>Moon Phase:</strong> ${moonPhase}<br>
                 <strong>Sunrise/Sunset:</strong> Sunrise: ${globalSunrise ? globalSunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}, Sunset: ${globalSunset ? globalSunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br>
                 <strong>Pressure:</strong> ${pressure} (${pressureDescription})<br>
             `;
@@ -271,4 +241,26 @@
                 nextEventName = 'Sunset';
             } else {
                 // If no events left today, show the next event as being tomorrow
-                nextEvent = globalSunrise ? new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(globalSunset.getTime() + 24
+                nextEvent = globalSunrise ? new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(globalSunset.getTime() + 24 * 60 * 60 * 1000);
+                nextEventName = globalSunrise ? 'Sunrise' : 'Sunset';
+            }
+
+            if (nextEvent) {
+                const timeUntilEvent = nextEvent - now;
+                const hours = Math.floor((timeUntilEvent / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((timeUntilEvent / (1000 * 60)) % 60);
+                const seconds = Math.floor((timeUntilEvent / 1000) % 60);
+
+                document.getElementById('next-event-countdown').innerHTML = `<strong>${nextEventName} in:</strong> ${hours}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        // Update weather every 90 seconds
+        setInterval(updateWeather, 90000);
+        updateWeather(); // Initial call to display weather immediately
+
+        // Update countdown every second
+        setInterval(updateNextEventCountdown, 1000);
+    </script>
+</body>
+</html>
