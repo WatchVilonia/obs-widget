@@ -179,15 +179,22 @@
 
                 // Fetch weather data from NOAA as a fallback
                 try {
-                    const noaaResponse = await fetch('https://api.weather.gov/gridpoints/LZK/56,69/forecast');
+                    const noaaResponse = await fetch('https://forecast.weather.gov/MapClick.php?lat=35.0838662&lon=-92.200566&FcstType=json');
                     if (noaaResponse.ok) {
                         const noaaData = await noaaResponse.json();
                         const period = noaaData.properties.periods[0];
 
                         temperature = period.temperature ? `${period.temperature} °F` : 'N/A';
                         conditionText = period.shortForecast || 'N/A';
-                        windSpeed = period.windSpeed ? `${period.windSpeed.split(' ')[0]} mph` : 'N/A';
+                        windSpeed = period.windSpeed ? `${parseInt(period.windSpeed.split(' ')[0])} mph` : 'N/A';
                         windDirection = period.windDirection || 'N/A';
+                        humidity = 'N/A'; // NOAA API does not provide humidity in this endpoint
+                        windGust = 'N/A';
+                        cloudCover = 'N/A';
+                        uvIndex = 'N/A';
+                        visibility = 'N/A';
+                        precipitationProbability = 'N/A';
+                        precipitationType = period.shortForecast.toLowerCase().includes('rain') ? 'Rain' : period.shortForecast.toLowerCase().includes('snow') ? 'Snow' : 'None';
                     } else {
                         throw new Error('NOAA fallback failed');
                     }
