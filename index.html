@@ -179,7 +179,7 @@
                     if (noaaResponse.ok) {
                         const noaaData = await noaaResponse.json();
                         const currentPeriod = noaaData.currentobservation;
-                        const forecastPeriod = noaaData.time.startValidTime[0];
+                        const forecastPeriod = noaaData.data;
 
                         temperature = currentPeriod.Temp !== undefined ? `${currentPeriod.Temp} °F` : 'N/A';
                         conditionText = currentPeriod.Weather || 'N/A';
@@ -187,6 +187,22 @@
                         windDirection = currentPeriod.Windd || 'N/A';
                         humidity = currentPeriod.Relh !== undefined ? `${currentPeriod.Relh} %` : 'N/A';
                         visibility = currentPeriod.Visibility !== undefined ? `${currentPeriod.Visibility} miles` : 'N/A';
+                        pressure = currentPeriod.SLP !== undefined ? `${(currentPeriod.SLP / 33.8639).toFixed(2)} inHg` : 'N/A';
+                        cloudCover = forecastPeriod.text[0].toLowerCase().includes('cloud') ? 'Cloudy' : 'Clear';
+                        if (forecastPeriod.temp[0]) {
+                            const highTemp = forecastPeriod.temp[0];
+                            feelsLikeContext = highTemp > temperature ? '(Feels Warmer)' : '(Feels Cooler)';
+                        }
+                        if (forecastPeriod.pop[0]) {
+                            precipitationProbability = `${forecastPeriod.pop[0]} %`;
+                        }
+                        if (forecastPeriod.text[0].toLowerCase().includes('rain')) {
+                            precipitationType = 'Rain';
+                        } else if (forecastPeriod.text[0].toLowerCase().includes('snow')) {
+                            precipitationType = 'Snow';
+                        } else {
+                            precipitationType = 'None';
+                        }
                     } else {
                         throw new Error('NOAA fallback failed');
                     }
@@ -255,26 +271,4 @@
                 nextEventName = 'Sunset';
             } else {
                 // If no events left today, show the next event as being tomorrow
-                nextEvent = globalSunrise ? new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(globalSunset.getTime() + 24 * 60 * 60 * 1000);
-                nextEventName = globalSunrise ? 'Sunrise' : 'Sunset';
-            }
-
-            if (nextEvent) {
-                const timeUntilEvent = nextEvent - now;
-                const hours = Math.floor((timeUntilEvent / (1000 * 60 * 60)) % 24);
-                const minutes = Math.floor((timeUntilEvent / (1000 * 60)) % 60);
-                const seconds = Math.floor((timeUntilEvent / 1000) % 60);
-
-                document.getElementById('next-event-countdown').innerHTML = `<strong>${nextEventName} in:</strong> ${hours}h ${minutes}m ${seconds}s`;
-            }
-        }
-
-        // Update weather every 90 seconds
-        setInterval(updateWeather, 90000);
-        updateWeather(); // Initial call to display weather immediately
-
-        // Update countdown every second
-        setInterval(updateNextEventCountdown, 1000);
-    </script>
-</body>
-</html>
+                nextEvent = globalSunrise ? new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(globalSunset.getTime() + 24
