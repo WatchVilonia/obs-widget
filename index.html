@@ -135,16 +135,18 @@
             const currentHour = now.getHours();
             clearInterval(weatherUpdateInterval);
 
-            if (currentHour >= globalSunrise.getHours() && currentHour < globalSunset.getHours()) {
-                // Daytime: Update every 60 seconds
-                weatherUpdateInterval = setInterval(updateWeather, 60000);
-            } else if (currentHour >= globalSunset.getHours() || currentHour < globalSunrise.getHours()) {
-                if (currentHour >= 0 && currentHour < 6) {
-                    // Midnight to early morning: Update every 10 minutes
-                    weatherUpdateInterval = setInterval(updateWeather, 600000);
-                } else {
-                    // Other nighttime hours: Update every 2 minutes
-                    weatherUpdateInterval = setInterval(updateWeather, 120000);
+            if (globalSunrise && globalSunset) {
+                if (currentHour >= globalSunrise.getHours() && currentHour < globalSunset.getHours()) {
+                    // Daytime: Update every 60 seconds
+                    weatherUpdateInterval = setInterval(updateWeather, 60000);
+                } else if (currentHour >= globalSunset.getHours() || currentHour < globalSunrise.getHours()) {
+                    if (currentHour >= 0 && currentHour < 6) {
+                        // Midnight to early morning: Update every 10 minutes
+                        weatherUpdateInterval = setInterval(updateWeather, 600000);
+                    } else {
+                        // Other nighttime hours: Update every 2 minutes
+                        weatherUpdateInterval = setInterval(updateWeather, 120000);
+                    }
                 }
             }
         }
@@ -236,6 +238,7 @@
 
             document.getElementById('weather-left').innerHTML = leftPodHTML;
             document.getElementById('weather-right').innerHTML = rightPodHTML;
+            adjustWeatherUpdateInterval(); // Adjust the interval after updating weather data
         }
 
         function getMoonPhaseDescription(phase) {
@@ -263,19 +266,19 @@
             const now = new Date();
             let nextEvent, nextEventName;
 
-            if (globalSunrise && globalSunrise > now) {
-                nextEvent = globalSunrise;
-                nextEventName = 'Sunrise';
-            } else if (globalSunset && globalSunset > now) {
-                nextEvent = globalSunset;
-                nextEventName = 'Sunset';
-            } else {
-                // If no events left today, show the next event as being tomorrow
-                nextEvent = globalSunrise ? new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000) : new Date(globalSunset.getTime() + 24 * 60 * 60 * 1000);
-                nextEventName = globalSunrise ? 'Sunrise' : 'Sunset';
-            }
+            if (globalSunrise && globalSunset) {
+                if (globalSunrise > now) {
+                    nextEvent = globalSunrise;
+                    nextEventName = 'Sunrise';
+                } else if (globalSunset > now) {
+                    nextEvent = globalSunset;
+                    nextEventName = 'Sunset';
+                } else {
+                    // If no events left today, show the next event as being tomorrow
+                    nextEvent = new Date(globalSunrise.getTime() + 24 * 60 * 60 * 1000);
+                    nextEventName = 'Sunrise';
+                }
 
-            if (nextEvent) {
                 const timeUntilEvent = nextEvent - now;
                 const hours = Math.floor((timeUntilEvent / (1000 * 60 * 60)) % 24);
                 const minutes = Math.floor((timeUntilEvent / (1000 * 60)) % 60);
@@ -287,7 +290,6 @@
 
         // Initial weather update and set interval based on time of day
         updateWeather();
-        adjustWeatherUpdateInterval();
         setInterval(updateNextEventCountdown, 1000);
     </script>
 </body>
