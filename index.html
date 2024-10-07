@@ -194,7 +194,7 @@
 
                 try {
                     // Fetch weather data from OpenWeatherMap
-                    const response = await fetch('https://api.openweathermap.org/data/3.0/onecall?lat=34.73&lon=-92.24&units=imperial&appid=23c8e12141a8159105784a15538b34fe');
+                    const response = await fetch('https://api.openweathermap.org/data/3.0/onecall?lat=35.0854&lon=-92.1984&units=imperial&appid=23c8e12141a8159105784a15538b34fe');
                     if (response.ok) {
                         const data = await response.json();
                         const current = data.current;
@@ -208,7 +208,7 @@
                         windDirection = current.wind_deg !== undefined ? `${current.wind_deg}°` : 'N/A';
                         precipitationProbability = daily?.pop !== undefined ? `${(daily.pop * 100).toFixed(0)} %` : 'N/A';
                         precipitationType = current.rain ? 'Rain' : current.snow ? 'Snow' : 'None';
-                        precipitationAmount = current.rain?.['1h'] ? `${current.rain['1h']} mm` : current.snow?.['1h'] ? `${current.snow['1h']} mm` : '0 mm';
+                        precipitationAmount = current.rain?.['1h'] !== undefined ? `${current.rain['1h']} inches` : current.snow?.['1h'] !== undefined ? `${current.snow['1h']} inches` : '0 inches';
                         cloudCover = current.clouds !== undefined ? `${current.clouds} %` : 'N/A';
                         conditionText = current.weather ? current.weather[0].description : 'N/A';
                         visibility = current.visibility !== undefined ? `${(current.visibility / 1609.34).toFixed(1)} miles` : 'N/A';
@@ -237,7 +237,7 @@
 
                     // Fetch weather data from NOAA as a fallback
                     try {
-                        const noaaResponse = await fetch('https://forecast.weather.gov/MapClick.php?lat=35.0838662&lon=-92.200566&FcstType=json');
+                        const noaaResponse = await fetch('https://forecast.weather.gov/MapClick.php?lat=35.0854&lon=-92.1984&FcstType=json');
                         if (noaaResponse.ok) {
                             const noaaData = await noaaResponse.json();
                             const currentObservation = noaaData.currentobservation;
