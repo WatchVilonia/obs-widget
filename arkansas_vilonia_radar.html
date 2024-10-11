@@ -48,18 +48,13 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        let radarLayer = L.tileLayer('https://tile.openweathermap.org/map/radar/{z}/{x}/{y}.png?appid=YOUR_OPENWEATHERMAP_API_KEY', {
-            attribution: 'Weather data &copy; <a href="https://openweathermap.org/">OpenWeather</a>',
+        // Adding RainViewer radar layer
+        let radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/{z}/{x}/{y}/256/1_1.png', {
+            attribution: 'Weather data &copy; <a href="https://www.rainviewer.com/">RainViewer</a>',
             opacity: 0.7
-        });
-
-        let cloudLayer = L.tileLayer('https://tile.openweathermap.org/map/clouds/{z}/{x}/{y}.png?appid=YOUR_OPENWEATHERMAP_API_KEY', {
-            attribution: 'Weather data &copy; <a href="https://openweathermap.org/">OpenWeather</a>',
-            opacity: 0.7
-        });
+        }).addTo(map);
 
         let showingArkansas = true;
-        let radarVisible = true;
 
         function switchRadarView() {
             if (showingArkansas) {
@@ -71,25 +66,8 @@
             }
         }
 
-        function toggleLayer() {
-            if (radarVisible) {
-                map.removeLayer(radarLayer);
-                cloudLayer.addTo(map);
-                radarVisible = false;
-            } else {
-                map.removeLayer(cloudLayer);
-                radarLayer.addTo(map);
-                radarVisible = true;
-            }
-        }
-
         // Cycle radar view every 30 seconds
         setInterval(switchRadarView, 30000);
-        // Toggle between radar and cloud cover every 30 seconds
-        setInterval(toggleLayer, 30000);
-
-        // Initially add radar layer
-        radarLayer.addTo(map);
     </script>
 </body>
 </html>
