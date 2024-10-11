@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Arkansas & Vilonia Weather Radar</title>
+    <title>Arkansas & Vilonia Weather Radar Animation</title>
     <style>
         body, html {
             margin: 0;
@@ -13,35 +13,58 @@
             width: 100%;
             height: 100%;
         }
+        /* Optional: Hide RainViewer's UI controls if desired */
+        .leaflet-control-container .leaflet-control-rainviewer {
+            display: none;
+        }
     </style>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- RainViewer CSS -->
+    <link rel="stylesheet" href="https://api.rainviewer.com/css/rainviewer-leaflet.css" />
 </head>
 <body>
     <div id="map"></div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- RainViewer JS -->
+    <script src="https://api.rainviewer.com/js/rainviewer-leaflet.js"></script>
+
     <script>
         // Initialize the map
-        let map = L.map('map').setView([35.0834, -92.2071], 8);
+        var map = L.map('map').setView([35.0834, -92.2071], 8);
 
         // Base map layer from OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+            maxZoom: 12,
+            attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Radar layer from the Iowa Environmental Mesonet
-        let radarLayer = L.tileLayer('https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png', {
-            maxZoom: 12,
+        // Initialize RainViewer radar animation
+        var rainviewer = new RainViewer(map, {
+            // Optional settings
             opacity: 0.6,
-            attribution: 'Weather data &copy; Iowa Environmental Mesonet'
-        }).addTo(map);
+            position: 'bottomright',
+            animationSpeed: 500,
+            // Show the radar for the past 1 hour (returns 6 frames)
+            framesCount: 6,
+            // Update radar images every 10 minutes
+            updateInterval: 600000,
+            // Show radar images in the past (set to false for forecast)
+            onlyPast: true,
+            // Auto-play the animation when the map loads
+            playOnInit: true,
+            // Show or hide the time label
+            showTimeLabel: true,
+            // Add your own RainViewer API key if you have one
+            apiKey: ''
+        });
 
         // Function to switch between Arkansas and Vilonia views
         function switchRadarView() {
-            if (map.getCenter().lat === 35.0834 && map.getCenter().lng === -92.2071) {
+            var currentCenter = map.getCenter();
+            if (currentCenter.lat === 35.0834 && currentCenter.lng === -92.2071) {
                 map.setView([35.0834, -92.1301], 11); // Vilonia view
             } else {
                 map.setView([35.0834, -92.2071], 8); // Arkansas view
