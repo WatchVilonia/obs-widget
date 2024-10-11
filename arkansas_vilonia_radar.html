@@ -1,73 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arkansas & Vilonia Weather Radar</title>
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+<script>
+    // Initialize the map
+    let map = L.map('map').setView([35.0834, -92.2071], 8);
+
+    // Base map layer from OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Function to fetch the latest radar timestamp and update the radar layer
+    function updateRadarLayer() {
+        fetch('https://api.rainviewer.com/public/weather-maps.json')
+            .then(response => response.json())
+            .then(data => {
+                const timestamp = data.radar.past.slice(-1)[0].time || data.radar.nowcast[0].time;
+
+                const radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/{z}/{x}/{y}/256/1_1.png`;
+
+                // Remove existing radar layer if it exists
+                if (window.radarLayer) {
+                    map.removeLayer(window.radarLayer);
+                }
+
+                // Add new radar layer
+                window.radarLayer = L.tileLayer(radarLayerUrlTemplate, {
+                    opacity: 0.7,
+                    attribution: 'Weather data &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'
+                }).addTo(map);
+            })
+            .catch(error => console.error('Error fetching radar data:', error));
+    }
+
+    // Initial radar layer update
+    updateRadarLayer();
+
+    // Update radar layer every 10 minutes
+    setInterval(updateRadarLayer, 600000); // 600,000 ms = 10 minutes
+
+    // Function to switch between Arkansas and Vilonia views
+    function switchRadarView() {
+        if (map.getZoom() === 8) {
+            map.setView([35.0834, -92.1301], 11); // Vilonia view
+        } else {
+            map.setView([35.0834, -92.2071], 8); // Arkansas view
         }
-        
-        #radar-container {
-            position: relative;
-            width: 90%;
-            max-width: 800px;
-            height: 450px;
-            border: 2px solid #333;
-            border-radius: 8px;
-            overflow: hidden;
-        }
+    }
 
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-</head>
-<body>
-    <div id="radar-container">
-        <div id="map"></div>
-    </div>
-
-    <script>
-        // Initialize the map
-        let map = L.map('map').setView([35.0834, -92.2071], 8);
-
-        // Base map layer from OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Adding RainViewer radar layer for real-time weather data
-        const radarLayerUrlTemplate = 'https://tilecache.rainviewer.com/v2/radar/{z}/{x}/{y}/256/1_1.png';
-        let radarLayer = L.tileLayer(radarLayerUrlTemplate, {
-            attribution: 'Weather data &copy; <a href="https://www.rainviewer.com/">RainViewer</a>',
-            opacity: 0.7
-        }).addTo(map);
-
-        // Function to switch between Arkansas and Vilonia views
-        function switchRadarView() {
-            if (map.getZoom() === 8) {
-                map.setView([35.0834, -92.1301], 11); // Vilonia view
-            } else {
-                map.setView([35.0834, -92.2071], 8); // Arkansas view
-            }
-        }
-
-        // Cycle radar view every 30 seconds
-        setInterval(switchRadarView, 30000);
-    </script>
-</body>
-</html>
+    // Cycle radar view every 30 seconds
+    setInterval(switchRadarView, 30000);
+</script>
