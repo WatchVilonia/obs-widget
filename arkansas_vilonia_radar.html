@@ -8,11 +8,24 @@
             margin: 0;
             padding: 0;
             height: 100%;
+            overflow: hidden;
         }
         #map {
             width: 100%;
             height: 100%;
             background-color: #f0f0f0; /* Optional: Set a background color */
+        }
+        /* Style for the timestamp display */
+        #timestamp {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            border-radius: 5px;
         }
     </style>
     <!-- Leaflet CSS -->
@@ -20,6 +33,7 @@
 </head>
 <body>
     <div id="map"></div>
+    <div id="timestamp">Loading...</div> <!-- Timestamp display -->
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -38,12 +52,12 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Function to generate radar timestamps for the past 2 hours at 5-minute intervals
+        // Function to generate radar timestamps for the past 2 hours at 2-minute intervals
         function generateRadarTimestamps() {
             const timestamps = [];
-            const now = Math.floor(Date.now() / (5 * 60 * 1000)) * (5 * 60 * 1000); // Round down to nearest 5 minutes
-            for (let i = 24; i >= 0; i--) { // 25 frames (0 to 24)
-                let time = now - (i * 5 * 60 * 1000);
+            const now = Math.floor(Date.now() / (2 * 60 * 1000)) * (2 * 60 * 1000); // Round down to nearest 2 minutes
+            for (let i = 60; i >= 0; i--) { // 61 frames (0 to 60)
+                let time = now - (i * 2 * 60 * 1000);
                 timestamps.push(Math.floor(time / 1000)); // Convert to UNIX timestamp in seconds
             }
             return timestamps;
@@ -71,12 +85,12 @@
                 radarLayer.on('load', function() {
                     layersLoaded++;
                     if (layersLoaded === radarTimestamps.length) {
-                        // All layers have loaded, start the animation
+                        // All layers have loaded or attempted to load, start the animation
                         startAnimation();
                     }
                 });
 
-                radarLayer.on('error', function() {
+                radarLayer.on('tileerror', function() {
                     // Handle missing radar images by removing the layer
                     map.removeLayer(radarLayer);
                     radarLayers.splice(radarLayers.indexOf(radarLayer), 1);
@@ -87,7 +101,10 @@
                     }
                 });
 
-                radarLayers.push(radarLayer);
+                radarLayers.push({
+                    layer: radarLayer,
+                    timestamp: timestamp
+                });
                 radarLayer.addTo(map);
             });
         }
@@ -100,22 +117,31 @@
             // If no layers are available, exit
             if (radarLayers.length === 0) {
                 console.error('No radar layers available for animation.');
+                document.getElementById('timestamp').innerText = 'No radar data available.';
                 return;
             }
 
-            // Start the animation loop
-            setInterval(function() {
+            // Function to update the frame
+            function updateFrame() {
                 // Set opacity of all layers to 0
-                radarLayers.forEach(function(layer) {
-                    layer.setOpacity(0);
+                radarLayers.forEach(function(obj) {
+                    obj.layer.setOpacity(0);
                 });
 
                 // Set opacity of current layer to desired opacity
-                radarLayers[radarIndex].setOpacity(0.6);
+                radarLayers[radarIndex].layer.setOpacity(0.6);
+
+                // Update timestamp display
+                let frameTime = new Date(radarLayers[radarIndex].timestamp * 1000);
+                document.getElementById('timestamp').innerText = frameTime.toLocaleString();
 
                 // Update index for next frame
                 radarIndex = (radarIndex + 1) % radarLayers.length;
-            }, 500); // Change frame every 500 ms (adjust as needed)
+            }
+
+            // Start the animation loop
+            updateFrame(); // Show the first frame immediately
+            setInterval(updateFrame, 200); // Change frame every 200 ms (adjust as needed)
         }
 
         // Start creating radar layers
