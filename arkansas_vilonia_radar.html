@@ -205,14 +205,14 @@
         // Cycle radar view every 30 seconds
         setInterval(switchRadarView, 30000);
 
-        // **Add the cloud layer from OpenWeatherMap**
-        let cloudLayer = L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
+        // **Add the satellite layer from Windy.com**
+        let windySatelliteLayer = L.tileLayer('https://tiles.windy.com/tiles/sat/{z}/{x}/{y}.jpg', {
             opacity: 0.5,
-            attribution: 'Cloud data © OpenWeatherMap'
+            attribution: 'Satellite data © Windy.com'
         });
 
-        // Add the cloud layer to the map
-        cloudLayer.addTo(map);
+        // Add the satellite layer to the map
+        windySatelliteLayer.addTo(map);
 
     </script>
 </body>
