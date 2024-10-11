@@ -46,26 +46,6 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Function to generate radar timestamps for the past 2 hours at 5-minute intervals
-        function generateRadarTimestamps() {
-            const timestamps = [];
-            const now = Math.floor(Date.now() / (5 * 60 * 1000)) * (5 * 60 * 1000); // Round down to nearest 5 minutes
-            for (let i = 24; i >= 0; i--) { // 25 frames (0 to 24)
-                let time = now - (i * 5 * 60 * 1000);
-                timestamps.push(Math.floor(time / 1000)); // Convert to UNIX timestamp in seconds
-            }
-            return timestamps;
-        }
-
-        // Generate radar timestamps
-        const radarTimestamps = generateRadarTimestamps();
-
-        // Array to hold the radar layers
-        const radarLayers = [];
-
-        // Variable to track how many layers have loaded
-        let layersLoaded = 0;
-
         // Create a custom control to display the time label
         let timeLabel = L.control({ position: 'bottomright' });
 
@@ -81,8 +61,42 @@
 
         timeLabel.addTo(map);
 
+        // Variables for radar animation
+        let radarLayers = [];
+        let radarTimestamps = [];
+        let radarIndex = 0;
+        let radarAnimationInterval;
+        let radarAutoUpdateInterval;
+
+        // Function to generate radar timestamps for the past 2 hours at 5-minute intervals
+        function generateRadarTimestamps() {
+            const timestamps = [];
+            const now = Math.floor(Date.now() / (5 * 60 * 1000)) * (5 * 60 * 1000); // Round down to nearest 5 minutes
+            for (let i = 24; i >= 0; i--) { // 25 frames (0 to 24)
+                let time = now - (i * 5 * 60 * 1000);
+                timestamps.push(Math.floor(time / 1000)); // Convert to UNIX timestamp in seconds
+            }
+            return timestamps;
+        }
+
         // Function to create radar layers
         function createRadarLayers() {
+            // Clear existing layers and intervals
+            if (radarAnimationInterval) clearInterval(radarAnimationInterval);
+            if (radarLayers.length > 0) {
+                radarLayers.forEach(function(layer) {
+                    map.removeLayer(layer);
+                });
+                radarLayers = [];
+            }
+            radarIndex = 0;
+
+            // Generate new radar timestamps
+            radarTimestamps = generateRadarTimestamps();
+
+            let layersLoaded = 0;
+            let layersToLoad = radarTimestamps.length;
+
             radarTimestamps.forEach(function(timestamp, index) {
                 let radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
 
@@ -93,7 +107,7 @@
 
                 radarLayer.on('load', function() {
                     layersLoaded++;
-                    if (layersLoaded === radarTimestamps.length) {
+                    if (layersLoaded === layersToLoad) {
                         // All layers have loaded, start the animation
                         startAnimation();
                     }
@@ -104,9 +118,12 @@
                     map.removeLayer(radarLayer);
                     radarLayers.splice(radarLayers.indexOf(radarLayer), 1);
                     layersLoaded++;
-                    if (layersLoaded === radarTimestamps.length) {
+                    layersToLoad--;
+                    if (layersLoaded === layersToLoad && layersToLoad > 0) {
                         // All layers have finished attempting to load
                         startAnimation();
+                    } else if (layersToLoad === 0) {
+                        console.error('No radar layers available for animation.');
                     }
                 });
 
@@ -114,9 +131,6 @@
                 radarLayer.addTo(map);
             });
         }
-
-        // Index to keep track of the current radar frame
-        let radarIndex = 0;
 
         // Function to start the radar animation
         function startAnimation() {
@@ -126,8 +140,11 @@
                 return;
             }
 
+            // Clear existing animation interval if any
+            if (radarAnimationInterval) clearInterval(radarAnimationInterval);
+
             // Start the animation loop
-            setInterval(function() {
+            radarAnimationInterval = setInterval(function() {
                 // Set opacity of all layers to 0
                 radarLayers.forEach(function(layer) {
                     layer.setOpacity(0);
@@ -145,8 +162,19 @@
             }, 500); // Change frame every 500 ms (adjust as needed)
         }
 
-        // Start creating radar layers
-        createRadarLayers();
+        // Function to start auto-updating the radar data
+        function startAutoUpdate() {
+            // Create initial radar layers
+            createRadarLayers();
+
+            // Set interval to update radar data every 10 minutes (600,000 milliseconds)
+            radarAutoUpdateInterval = setInterval(function() {
+                createRadarLayers();
+            }, 600000); // Adjust the interval as needed
+        }
+
+        // Start the auto-update process
+        startAutoUpdate();
 
         // Function to switch between Arkansas and Vilonia views
         function switchRadarView() {
