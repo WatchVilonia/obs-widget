@@ -61,9 +61,8 @@
 
         timeLabel.addTo(map);
 
-        // Variables for radar and satellite animation
+        // Variables for radar animation
         let radarLayers = [];
-        let satelliteLayers = [];
         let radarTimestamps = [];
         let radarIndex = 0;
         let radarAnimationTimeout;
@@ -80,8 +79,8 @@
             return timestamps;
         }
 
-        // Function to create radar and satellite layers
-        function createLayers() {
+        // Function to create radar layers
+        function createRadarLayers() {
             // Clear existing layers and timeouts
             if (radarAnimationTimeout) clearTimeout(radarAnimationTimeout);
             if (radarLayers.length > 0) {
@@ -90,22 +89,15 @@
                 });
                 radarLayers = [];
             }
-            if (satelliteLayers.length > 0) {
-                satelliteLayers.forEach(function(layer) {
-                    map.removeLayer(layer);
-                });
-                satelliteLayers = [];
-            }
             radarIndex = 0;
 
             // Generate new radar timestamps
             radarTimestamps = generateRadarTimestamps();
 
             let layersLoaded = 0;
-            let layersToLoad = radarTimestamps.length * 2; // Multiply by 2 for radar and satellite layers
+            let layersToLoad = radarTimestamps.length;
 
             radarTimestamps.forEach(function(timestamp, index) {
-                // Radar Layer
                 let radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
 
                 let radarLayer = L.tileLayer(radarLayerUrlTemplate, {
@@ -113,67 +105,38 @@
                     attribution: 'Weather data © RainViewer'
                 });
 
-                // Satellite Layer
-                let satelliteLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/satellite/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
-
-                let satelliteLayer = L.tileLayer(satelliteLayerUrlTemplate, {
-                    opacity: 0, // Start with opacity 0
-                    attribution: 'Cloud data © RainViewer'
-                });
-
-                // Radar Layer Load Event
                 radarLayer.on('load', function() {
                     layersLoaded++;
-                    checkAllLayersLoaded(layersLoaded, layersToLoad);
+                    if (layersLoaded === layersToLoad) {
+                        // All layers have loaded, start the animation
+                        startAnimation();
+                    }
                 });
 
                 radarLayer.on('error', function() {
-                    // Handle missing radar images
+                    // Handle missing radar images by removing the layer
                     map.removeLayer(radarLayer);
                     radarLayers.splice(radarLayers.indexOf(radarLayer), 1);
                     layersLoaded++;
                     layersToLoad--;
-                    checkAllLayersLoaded(layersLoaded, layersToLoad);
-                });
-
-                // Satellite Layer Load Event
-                satelliteLayer.on('load', function() {
-                    layersLoaded++;
-                    checkAllLayersLoaded(layersLoaded, layersToLoad);
-                });
-
-                satelliteLayer.on('error', function() {
-                    // Handle missing satellite images
-                    map.removeLayer(satelliteLayer);
-                    satelliteLayers.splice(satelliteLayers.indexOf(satelliteLayer), 1);
-                    layersLoaded++;
-                    layersToLoad--;
-                    checkAllLayersLoaded(layersLoaded, layersToLoad);
+                    if (layersLoaded === layersToLoad && layersToLoad > 0) {
+                        // All layers have finished attempting to load
+                        startAnimation();
+                    } else if (layersToLoad === 0) {
+                        console.error('No radar layers available for animation.');
+                    }
                 });
 
                 radarLayers.push(radarLayer);
-                satelliteLayers.push(satelliteLayer);
-
                 radarLayer.addTo(map);
-                satelliteLayer.addTo(map);
             });
         }
 
-        // Function to check if all layers have loaded
-        function checkAllLayersLoaded(layersLoaded, layersToLoad) {
-            if (layersLoaded === layersToLoad && layersToLoad > 0) {
-                // All layers have loaded, start the animation
-                startAnimation();
-            } else if (layersToLoad === 0) {
-                console.error('No radar or satellite layers available for animation.');
-            }
-        }
-
-        // Function to start the radar and satellite animation
+        // Function to start the radar animation
         function startAnimation() {
             // If no layers are available, exit
-            if (radarLayers.length === 0 && satelliteLayers.length === 0) {
-                console.error('No radar or satellite layers available for animation.');
+            if (radarLayers.length === 0) {
+                console.error('No radar layers available for animation.');
                 return;
             }
 
@@ -188,19 +151,9 @@
                 radarLayers.forEach(function(layer) {
                     layer.setOpacity(0);
                 });
-                satelliteLayers.forEach(function(layer) {
-                    layer.setOpacity(0);
-                });
 
                 // Set opacity of current radar layer
-                if (radarLayers[radarIndex]) {
-                    radarLayers[radarIndex].setOpacity(0.6);
-                }
-
-                // Set opacity of current satellite layer
-                if (satelliteLayers[radarIndex]) {
-                    satelliteLayers[radarIndex].setOpacity(0.5); // Adjust opacity as needed
-                }
+                radarLayers[radarIndex].setOpacity(0.6);
 
                 // Update the time label
                 let frameTime = new Date(radarTimestamps[radarIndex] * 1000).toLocaleString();
@@ -225,14 +178,14 @@
             animateFrames();
         }
 
-        // Function to start auto-updating the radar and satellite data
+        // Function to start auto-updating the radar data
         function startAutoUpdate() {
-            // Create initial layers
-            createLayers();
+            // Create initial radar layers
+            createRadarLayers();
 
-            // Set interval to update data every 10 minutes (600,000 milliseconds)
+            // Set interval to update radar data every 10 minutes (600,000 milliseconds)
             radarAutoUpdateInterval = setInterval(function() {
-                createLayers();
+                createRadarLayers();
             }, 600000); // Adjust the interval as needed
         }
 
@@ -251,6 +204,15 @@
 
         // Cycle radar view every 30 seconds
         setInterval(switchRadarView, 30000);
+
+        // **Add the cloud layer from OpenWeatherMap**
+        let cloudLayer = L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
+            opacity: 0.5,
+            attribution: 'Cloud data © OpenWeatherMap'
+        });
+
+        // Add the cloud layer to the map
+        cloudLayer.addTo(map);
 
     </script>
 </body>
