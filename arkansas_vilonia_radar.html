@@ -12,6 +12,7 @@
         #map {
             width: 100%;
             height: 100%;
+            background-color: #f0f0f0; /* Optional: Set a background color */
         }
     </style>
     <!-- Leaflet CSS -->
@@ -37,12 +38,12 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Function to generate radar timestamps for the past hour at 10-minute intervals
+        // Function to generate radar timestamps for the past 2 hours at 5-minute intervals
         function generateRadarTimestamps() {
             const timestamps = [];
-            const now = Math.floor(Date.now() / 600000) * 600000; // Round down to the nearest 10 minutes
-            for (let i = 6; i >= 0; i--) {
-                let time = now - (i * 600000);
+            const now = Math.floor(Date.now() / (5 * 60 * 1000)) * (5 * 60 * 1000); // Round down to nearest 5 minutes
+            for (let i = 24; i >= 0; i--) { // 25 frames (0 to 24)
+                let time = now - (i * 5 * 60 * 1000);
                 timestamps.push(Math.floor(time / 1000)); // Convert to UNIX timestamp in seconds
             }
             return timestamps;
@@ -51,35 +52,74 @@
         // Generate radar timestamps
         const radarTimestamps = generateRadarTimestamps();
 
+        // Array to hold the radar layers
+        const radarLayers = [];
+
+        // Variable to track how many layers have loaded
+        let layersLoaded = 0;
+
+        // Function to create radar layers
+        function createRadarLayers() {
+            radarTimestamps.forEach(function(timestamp, index) {
+                let radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
+
+                let radarLayer = L.tileLayer(radarLayerUrlTemplate, {
+                    opacity: 0, // Start with opacity 0
+                    attribution: 'Weather data © RainViewer'
+                });
+
+                radarLayer.on('load', function() {
+                    layersLoaded++;
+                    if (layersLoaded === radarTimestamps.length) {
+                        // All layers have loaded, start the animation
+                        startAnimation();
+                    }
+                });
+
+                radarLayer.on('error', function() {
+                    // Handle missing radar images by removing the layer
+                    map.removeLayer(radarLayer);
+                    radarLayers.splice(radarLayers.indexOf(radarLayer), 1);
+                    layersLoaded++;
+                    if (layersLoaded === radarTimestamps.length) {
+                        // All layers have finished attempting to load
+                        startAnimation();
+                    }
+                });
+
+                radarLayers.push(radarLayer);
+                radarLayer.addTo(map);
+            });
+        }
+
         // Index to keep track of the current radar frame
         let radarIndex = 0;
 
-        // Function to update the radar layer
-        function updateRadarLayer() {
-            // Remove existing radar layer if it exists
-            if (window.radarLayer) {
-                map.removeLayer(window.radarLayer);
+        // Function to start the radar animation
+        function startAnimation() {
+            // If no layers are available, exit
+            if (radarLayers.length === 0) {
+                console.error('No radar layers available for animation.');
+                return;
             }
 
-            // Get the timestamp
-            let timestamp = radarTimestamps[radarIndex];
+            // Start the animation loop
+            setInterval(function() {
+                // Set opacity of all layers to 0
+                radarLayers.forEach(function(layer) {
+                    layer.setOpacity(0);
+                });
 
-            // Radar tile URL using the timestamp
-            let radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
+                // Set opacity of current layer to desired opacity
+                radarLayers[radarIndex].setOpacity(0.6);
 
-            // Add new radar layer
-            window.radarLayer = L.tileLayer(radarLayerUrlTemplate, {
-                opacity: 0.6,
-                attribution: 'Weather data © RainViewer'
-            }).addTo(map);
-
-            // Update index for next frame
-            radarIndex = (radarIndex + 1) % radarTimestamps.length;
+                // Update index for next frame
+                radarIndex = (radarIndex + 1) % radarLayers.length;
+            }, 500); // Change frame every 500 ms (adjust as needed)
         }
 
-        // Start the radar animation
-        updateRadarLayer(); // Show the first frame immediately
-        setInterval(updateRadarLayer, 500); // Change frame every 500 ms (adjust as needed)
+        // Start creating radar layers
+        createRadarLayers();
 
         // Function to switch between Arkansas and Vilonia views
         function switchRadarView() {
@@ -93,6 +133,7 @@
 
         // Cycle radar view every 30 seconds
         setInterval(switchRadarView, 30000);
+
     </script>
 </body>
 </html>
