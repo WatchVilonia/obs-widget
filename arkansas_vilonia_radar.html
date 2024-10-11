@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Arkansas & Vilonia Weather Radar Animation</title>
+    <title>Arkansas & Vilonia Weather Radar</title>
     <style>
         body, html {
             margin: 0;
@@ -37,46 +37,12 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Predefined radar timestamps (Unix timestamps)
-        let radarTimestamps = [
-            '0',  // Latest radar image
-            '-10', // 10 minutes ago
-            '-20', // 20 minutes ago
-            '-30', // 30 minutes ago
-            '-40', // 40 minutes ago
-            '-50', // 50 minutes ago
-            '-60'  // 60 minutes ago
-        ];
-
-        // Index to keep track of the current radar frame
-        let radarIndex = 0;
-
-        // Function to update the radar layer
-        function updateRadarLayer() {
-            // Remove existing radar layer if it exists
-            if (window.radarLayer) {
-                map.removeLayer(window.radarLayer);
-            }
-
-            // Get the timestamp offset
-            let timestamp = radarTimestamps[radarIndex];
-
-            // Radar tile URL using the timestamp offset
-            let radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
-
-            // Add new radar layer
-            window.radarLayer = L.tileLayer(radarLayerUrlTemplate, {
-                opacity: 0.6,
-                attribution: 'Weather data © RainViewer'
-            }).addTo(map);
-
-            // Update index for next frame
-            radarIndex = (radarIndex + 1) % radarTimestamps.length;
-        }
-
-        // Start the radar animation
-        updateRadarLayer(); // Show the first frame immediately
-        setInterval(updateRadarLayer, 500); // Change frame every 500 ms (adjust as needed)
+        // Radar layer from the Iowa Environmental Mesonet
+        let radarLayer = L.tileLayer('https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0r-900913/{z}/{x}/{y}.png', {
+            maxZoom: 12,
+            opacity: 0.6,
+            attribution: 'Weather data © Iowa Environmental Mesonet'
+        }).addTo(map);
 
         // Function to switch between Arkansas and Vilonia views
         function switchRadarView() {
