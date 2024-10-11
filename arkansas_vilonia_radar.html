@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Arkansas & Vilonia Animated Weather Radar</title>
+    <title>Arkansas & Vilonia Animated Weather Radar with Cloud Cover</title>
     <style>
         body, html {
             margin: 0;
@@ -61,8 +61,9 @@
 
         timeLabel.addTo(map);
 
-        // Variables for radar animation
+        // Variables for radar and satellite animation
         let radarLayers = [];
+        let satelliteLayers = [];
         let radarTimestamps = [];
         let radarIndex = 0;
         let radarAnimationTimeout;
@@ -79,8 +80,8 @@
             return timestamps;
         }
 
-        // Function to create radar layers
-        function createRadarLayers() {
+        // Function to create radar and satellite layers
+        function createLayers() {
             // Clear existing layers and timeouts
             if (radarAnimationTimeout) clearTimeout(radarAnimationTimeout);
             if (radarLayers.length > 0) {
@@ -89,15 +90,22 @@
                 });
                 radarLayers = [];
             }
+            if (satelliteLayers.length > 0) {
+                satelliteLayers.forEach(function(layer) {
+                    map.removeLayer(layer);
+                });
+                satelliteLayers = [];
+            }
             radarIndex = 0;
 
             // Generate new radar timestamps
             radarTimestamps = generateRadarTimestamps();
 
             let layersLoaded = 0;
-            let layersToLoad = radarTimestamps.length;
+            let layersToLoad = radarTimestamps.length * 2; // Multiply by 2 for radar and satellite layers
 
             radarTimestamps.forEach(function(timestamp, index) {
+                // Radar Layer
                 let radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
 
                 let radarLayer = L.tileLayer(radarLayerUrlTemplate, {
@@ -105,38 +113,67 @@
                     attribution: 'Weather data © RainViewer'
                 });
 
+                // Satellite Layer
+                let satelliteLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/satellite/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
+
+                let satelliteLayer = L.tileLayer(satelliteLayerUrlTemplate, {
+                    opacity: 0, // Start with opacity 0
+                    attribution: 'Cloud data © RainViewer'
+                });
+
+                // Radar Layer Load Event
                 radarLayer.on('load', function() {
                     layersLoaded++;
-                    if (layersLoaded === layersToLoad) {
-                        // All layers have loaded, start the animation
-                        startAnimation();
-                    }
+                    checkAllLayersLoaded(layersLoaded, layersToLoad);
                 });
 
                 radarLayer.on('error', function() {
-                    // Handle missing radar images by removing the layer
+                    // Handle missing radar images
                     map.removeLayer(radarLayer);
                     radarLayers.splice(radarLayers.indexOf(radarLayer), 1);
                     layersLoaded++;
                     layersToLoad--;
-                    if (layersLoaded === layersToLoad && layersToLoad > 0) {
-                        // All layers have finished attempting to load
-                        startAnimation();
-                    } else if (layersToLoad === 0) {
-                        console.error('No radar layers available for animation.');
-                    }
+                    checkAllLayersLoaded(layersLoaded, layersToLoad);
+                });
+
+                // Satellite Layer Load Event
+                satelliteLayer.on('load', function() {
+                    layersLoaded++;
+                    checkAllLayersLoaded(layersLoaded, layersToLoad);
+                });
+
+                satelliteLayer.on('error', function() {
+                    // Handle missing satellite images
+                    map.removeLayer(satelliteLayer);
+                    satelliteLayers.splice(satelliteLayers.indexOf(satelliteLayer), 1);
+                    layersLoaded++;
+                    layersToLoad--;
+                    checkAllLayersLoaded(layersLoaded, layersToLoad);
                 });
 
                 radarLayers.push(radarLayer);
+                satelliteLayers.push(satelliteLayer);
+
                 radarLayer.addTo(map);
+                satelliteLayer.addTo(map);
             });
         }
 
-        // Function to start the radar animation
+        // Function to check if all layers have loaded
+        function checkAllLayersLoaded(layersLoaded, layersToLoad) {
+            if (layersLoaded === layersToLoad && layersToLoad > 0) {
+                // All layers have loaded, start the animation
+                startAnimation();
+            } else if (layersToLoad === 0) {
+                console.error('No radar or satellite layers available for animation.');
+            }
+        }
+
+        // Function to start the radar and satellite animation
         function startAnimation() {
             // If no layers are available, exit
-            if (radarLayers.length === 0) {
-                console.error('No radar layers available for animation.');
+            if (radarLayers.length === 0 && satelliteLayers.length === 0) {
+                console.error('No radar or satellite layers available for animation.');
                 return;
             }
 
@@ -151,9 +188,19 @@
                 radarLayers.forEach(function(layer) {
                     layer.setOpacity(0);
                 });
+                satelliteLayers.forEach(function(layer) {
+                    layer.setOpacity(0);
+                });
 
-                // Set opacity of current layer to desired opacity
-                radarLayers[radarIndex].setOpacity(0.6);
+                // Set opacity of current radar layer
+                if (radarLayers[radarIndex]) {
+                    radarLayers[radarIndex].setOpacity(0.6);
+                }
+
+                // Set opacity of current satellite layer
+                if (satelliteLayers[radarIndex]) {
+                    satelliteLayers[radarIndex].setOpacity(0.5); // Adjust opacity as needed
+                }
 
                 // Update the time label
                 let frameTime = new Date(radarTimestamps[radarIndex] * 1000).toLocaleString();
@@ -163,12 +210,12 @@
                 let delay = 500; // Default delay for frames
 
                 // If it's the latest frame, pause longer
-                if (radarIndex === radarLayers.length - 1) {
+                if (radarIndex === radarTimestamps.length - 1) {
                     delay = delay * 5; // Pause 5 times longer on the latest frame
                 }
 
                 // Update index for next frame
-                radarIndex = (radarIndex + 1) % radarLayers.length;
+                radarIndex = (radarIndex + 1) % radarTimestamps.length;
 
                 // Set timeout for next frame
                 radarAnimationTimeout = setTimeout(animateFrames, delay);
@@ -178,14 +225,14 @@
             animateFrames();
         }
 
-        // Function to start auto-updating the radar data
+        // Function to start auto-updating the radar and satellite data
         function startAutoUpdate() {
-            // Create initial radar layers
-            createRadarLayers();
+            // Create initial layers
+            createLayers();
 
-            // Set interval to update radar data every 10 minutes (600,000 milliseconds)
+            // Set interval to update data every 10 minutes (600,000 milliseconds)
             radarAutoUpdateInterval = setInterval(function() {
-                createRadarLayers();
+                createLayers();
             }, 600000); // Adjust the interval as needed
         }
 
