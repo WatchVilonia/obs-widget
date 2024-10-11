@@ -1,51 +1,55 @@
-<script>
-    // Initialize the map
-    let map = L.map('map').setView([35.0834, -92.2071], 8);
-
-    // Base map layer from OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Function to fetch the latest radar timestamp and update the radar layer
-    function updateRadarLayer() {
-        fetch('https://api.rainviewer.com/public/weather-maps.json')
-            .then(response => response.json())
-            .then(data => {
-                const timestamp = data.radar.past.slice(-1)[0].time || data.radar.nowcast[0].time;
-
-                const radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/{z}/{x}/{y}/256/1_1.png`;
-
-                // Remove existing radar layer if it exists
-                if (window.radarLayer) {
-                    map.removeLayer(window.radarLayer);
-                }
-
-                // Add new radar layer
-                window.radarLayer = L.tileLayer(radarLayerUrlTemplate, {
-                    opacity: 0.7,
-                    attribution: 'Weather data &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'
-                }).addTo(map);
-            })
-            .catch(error => console.error('Error fetching radar data:', error));
-    }
-
-    // Initial radar layer update
-    updateRadarLayer();
-
-    // Update radar layer every 10 minutes
-    setInterval(updateRadarLayer, 600000); // 600,000 ms = 10 minutes
-
-    // Function to switch between Arkansas and Vilonia views
-    function switchRadarView() {
-        if (map.getZoom() === 8) {
-            map.setView([35.0834, -92.1301], 11); // Vilonia view
-        } else {
-            map.setView([35.0834, -92.2071], 8); // Arkansas view
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arkansas & Vilonia Weather Radar</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
         }
-    }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="map"></div>
 
-    // Cycle radar view every 30 seconds
-    setInterval(switchRadarView, 30000);
-</script>
+    <script>
+        // Initialize the map
+        let map = L.map('map').setView([35.0834, -92.2071], 8);
+
+        // Base map layer from OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Radar layer from the Iowa Environmental Mesonet
+        let radarLayer = L.tileLayer('https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png', {
+            maxZoom: 12,
+            opacity: 0.6,
+            attribution: 'Weather data &copy; Iowa Environmental Mesonet'
+        }).addTo(map);
+
+        // Function to switch between Arkansas and Vilonia views
+        function switchRadarView() {
+            if (map.getCenter().lat === 35.0834 && map.getCenter().lng === -92.2071) {
+                map.setView([35.0834, -92.1301], 11); // Vilonia view
+            } else {
+                map.setView([35.0834, -92.2071], 8); // Arkansas view
+            }
+        }
+
+        // Cycle radar view every 30 seconds
+        setInterval(switchRadarView, 30000);
+    </script>
+</body>
+</html>
