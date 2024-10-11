@@ -43,7 +43,6 @@
     <script>
         let map = L.map('map').setView([35.0834, -92.2071], 8);
 
-        // Base map layer from OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -53,11 +52,17 @@
         let radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/{z}/{x}/{y}/256/1_1.png', {
             attribution: 'Weather data &copy; <a href="https://www.rainviewer.com/">RainViewer</a>',
             opacity: 0.7
-        }).addTo(map);
+        });
+
+        // Adding RainViewer cloud layer
+        let cloudLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/satellite/{z}/{x}/{y}/256/1_1.png', {
+            attribution: 'Weather data &copy; <a href="https://www.rainviewer.com/">RainViewer</a>',
+            opacity: 0.7
+        });
 
         let showingArkansas = true;
+        let radarVisible = true;
 
-        // Function to switch between Arkansas and Vilonia views
         function switchRadarView() {
             if (showingArkansas) {
                 map.setView([35.0834, -92.1301], 11); // Vilonia view
@@ -68,8 +73,25 @@
             }
         }
 
-        // Automatically switch radar view every 30 seconds
+        function toggleLayer() {
+            if (radarVisible) {
+                map.removeLayer(radarLayer);
+                cloudLayer.addTo(map);
+                radarVisible = false;
+            } else {
+                map.removeLayer(cloudLayer);
+                radarLayer.addTo(map);
+                radarVisible = true;
+            }
+        }
+
+        // Cycle radar view every 30 seconds
         setInterval(switchRadarView, 30000);
+        // Toggle between radar and cloud cover every 30 seconds
+        setInterval(toggleLayer, 30000);
+
+        // Initially add radar layer
+        radarLayer.addTo(map);
     </script>
 </body>
 </html>
