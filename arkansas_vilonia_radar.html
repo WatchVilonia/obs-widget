@@ -68,11 +68,11 @@
         let radarAnimationInterval;
         let radarAutoUpdateInterval;
 
-        // Function to generate radar timestamps for the past 2 hours at 5-minute intervals
+        // Function to generate radar timestamps for the past 1 hour at 5-minute intervals
         function generateRadarTimestamps() {
             const timestamps = [];
             const now = Math.floor(Date.now() / (5 * 60 * 1000)) * (5 * 60 * 1000); // Round down to nearest 5 minutes
-            for (let i = 24; i >= 0; i--) { // 25 frames (0 to 24)
+            for (let i = 12; i >= 0; i--) { // 13 frames (0 to 12)
                 let time = now - (i * 5 * 60 * 1000);
                 timestamps.push(Math.floor(time / 1000)); // Convert to UNIX timestamp in seconds
             }
