@@ -12,7 +12,7 @@
         #map {
             width: 100%;
             height: 100%;
-            background-color: #f0f0f0; /* Optional: Set a background color */
+            background-color: #f0f0f0;
         }
         /* Add styles for the time label control */
         .time-label {
@@ -36,13 +36,15 @@
         // Initialize the map without zoom controls
         let map = L.map('map', {
             center: [35.0834, -92.2071],
-            zoom: 8,
-            zoomControl: false // This removes the zoom controls
+            zoom: 4,
+            zoomControl: false,
+            minZoom: 1,
+            maxZoom: 8 // Adjusted to match GIBS max zoom
         });
 
         // Base map layer from OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 12,
+            maxZoom: 8,
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
@@ -102,7 +104,9 @@
 
                 let radarLayer = L.tileLayer(radarLayerUrlTemplate, {
                     opacity: 0, // Start with opacity 0
-                    attribution: 'Weather data © RainViewer'
+                    attribution: 'Weather data © RainViewer',
+                    tileSize: 256,
+                    zIndex: 10
                 });
 
                 radarLayer.on('load', function() {
@@ -205,15 +209,22 @@
         // Cycle radar view every 30 seconds
         setInterval(switchRadarView, 30000);
 
-        // **Add the satellite layer from Windy.com**
-        let windySatelliteLayer = L.tileLayer('https://tiles.windy.com/tiles/sat/{z}/{x}/{y}.jpg', {
+        // Add the satellite layer from NASA GIBS
+        let today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+
+        let gibsLayer = L.tileLayer('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_CorrectedReflectance_TrueColor/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg', {
+            attribution: 'Imagery provided by NASA GIBS, Blue Marble Next Generation',
+            tileSize: 256,
+            bounds: [[-85.0511, -180], [85.0511, 180]],
+            minZoom: 1,
+            maxZoom: 8,
             opacity: 0.5,
-            attribution: 'Satellite data © Windy.com'
+            time: today,
+            crossOrigin: true
         });
 
-        // Add the satellite layer to the map
-        windySatelliteLayer.addTo(map);
-
+        // Add the GIBS layer to the map
+        gibsLayer.addTo(map);
     </script>
 </body>
 </html>
