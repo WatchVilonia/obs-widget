@@ -65,7 +65,7 @@
         let radarLayers = [];
         let radarTimestamps = [];
         let radarIndex = 0;
-        let radarAnimationInterval;
+        let radarAnimationTimeout;
         let radarAutoUpdateInterval;
 
         // Function to generate radar timestamps for the past 1 hour at 5-minute intervals
@@ -81,8 +81,8 @@
 
         // Function to create radar layers
         function createRadarLayers() {
-            // Clear existing layers and intervals
-            if (radarAnimationInterval) clearInterval(radarAnimationInterval);
+            // Clear existing layers and timeouts
+            if (radarAnimationTimeout) clearTimeout(radarAnimationTimeout);
             if (radarLayers.length > 0) {
                 radarLayers.forEach(function(layer) {
                     map.removeLayer(layer);
@@ -140,11 +140,13 @@
                 return;
             }
 
-            // Clear existing animation interval if any
-            if (radarAnimationInterval) clearInterval(radarAnimationInterval);
+            // Clear existing animation timeout if any
+            if (radarAnimationTimeout) clearTimeout(radarAnimationTimeout);
 
-            // Start the animation loop
-            radarAnimationInterval = setInterval(function() {
+            radarIndex = 0; // Reset radarIndex
+
+            // Function to animate frames
+            function animateFrames() {
                 // Set opacity of all layers to 0
                 radarLayers.forEach(function(layer) {
                     layer.setOpacity(0);
@@ -157,9 +159,23 @@
                 let frameTime = new Date(radarTimestamps[radarIndex] * 1000).toLocaleString();
                 timeLabel.update(frameTime);
 
+                // Calculate delay
+                let delay = 500; // Default delay for frames
+
+                // If it's the latest frame, pause longer
+                if (radarIndex === radarLayers.length - 1) {
+                    delay = delay * 5; // Pause 5 times longer on the latest frame
+                }
+
                 // Update index for next frame
                 radarIndex = (radarIndex + 1) % radarLayers.length;
-            }, 500); // Change frame every 500 ms (adjust as needed)
+
+                // Set timeout for next frame
+                radarAnimationTimeout = setTimeout(animateFrames, delay);
+            }
+
+            // Start the animation
+            animateFrames();
         }
 
         // Function to start auto-updating the radar data
