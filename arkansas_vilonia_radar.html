@@ -69,36 +69,15 @@
         // Array to hold the radar layers
         const radarLayers = [];
 
-        // Variable to track how many layers have loaded
-        let layersLoaded = 0;
-
         // Function to create radar layers
         function createRadarLayers() {
-            radarTimestamps.forEach(function(timestamp, index) {
+            radarTimestamps.forEach(function(timestamp) {
                 let radarLayerUrlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/1/1_1.png`;
 
                 let radarLayer = L.tileLayer(radarLayerUrlTemplate, {
                     opacity: 0, // Start with opacity 0
-                    attribution: 'Weather data © RainViewer'
-                });
-
-                radarLayer.on('load', function() {
-                    layersLoaded++;
-                    if (layersLoaded === radarTimestamps.length) {
-                        // All layers have loaded or attempted to load, start the animation
-                        startAnimation();
-                    }
-                });
-
-                radarLayer.on('tileerror', function() {
-                    // Handle missing radar images by removing the layer
-                    map.removeLayer(radarLayer);
-                    radarLayers.splice(radarLayers.indexOf(radarLayer), 1);
-                    layersLoaded++;
-                    if (layersLoaded === radarTimestamps.length) {
-                        // All layers have finished attempting to load
-                        startAnimation();
-                    }
+                    attribution: 'Weather data © RainViewer',
+                    errorTileUrl: '' // Use an empty tile for missing tiles
                 });
 
                 radarLayers.push({
@@ -107,6 +86,9 @@
                 });
                 radarLayer.addTo(map);
             });
+
+            // Start the animation
+            startAnimation();
         }
 
         // Index to keep track of the current radar frame
