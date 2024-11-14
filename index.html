@@ -292,17 +292,29 @@
             function updateWeatherDisplay(weatherData) {
                 // Distribute weather information between left and right pods
                 const leftPodHTML = `
-                    Temperature: ${weatherData.temperature} (Feels Like: ${weatherData.feelsLike})<br>
-                    Humidity: ${weatherData.humidity} • Wind Speed: ${weatherData.windSpeed}<br>
-                    Wind Gust: ${weatherData.windGust} • Direction: ${weatherData.windDirection}<br>
-                    Precipitation: ${weatherData.precipitationProbability} ${weatherData.precipitationType}
+                    <strong>Temperature:</strong> ${weatherData.temperature}<br>
+                    <strong>Feels Like:</strong> ${weatherData.feelsLike}<br>
+                    <strong>Humidity:</strong> ${weatherData.humidity}<br>
+                    <strong>Wind Speed:</strong> ${weatherData.windSpeed}<br>
+                    <strong>Wind Gust:</strong> ${weatherData.windGust}<br>
+                    <strong>Wind Direction:</strong> ${weatherData.windDirection}<br>
+                    <strong>Precipitation Probability:</strong> ${weatherData.precipitationProbability}<br>
+                    <strong>Precipitation Type:</strong> ${weatherData.precipitationType}<br>
+                    <strong>Precipitation Amount:</strong> ${weatherData.precipitationAmount}<br>
                 `;
 
                 const rightPodHTML = `
-                    Air Quality: ${weatherData.aqi} • UV Index: ${weatherData.uvIndex}<br>
-                    Cloud Cover: ${weatherData.cloudCover} • Visibility: ${weatherData.visibility}<br>
-                    Conditions: ${weatherData.conditionText}<br>
-                    Sunrise: ${globalSunrise ? formatTime(globalSunrise) : 'N/A'} • Sunset: ${globalSunset ? formatTime(globalSunset) : 'N/A'}
+                    <strong>AQI:</strong> ${weatherData.aqi}<br>
+                    <strong>Pollen Count:</strong> ${weatherData.pollenCount}<br>
+                    <strong>Cloud Cover:</strong> ${weatherData.cloudCover}<br>
+                    <strong>Condition:</strong> ${weatherData.conditionText}<br>
+                    <strong>Visibility:</strong> ${weatherData.visibility}<br>
+                    <strong>UV Index:</strong> ${weatherData.uvIndex}<br>
+                    <strong>Moon Phase:</strong> ${weatherData.moonPhase}<br>
+                    <strong>Sunrise/Sunset:</strong> Sunrise: ${
+                        globalSunrise ? formatTime(globalSunrise) : 'N/A'
+                    }, Sunset: ${globalSunset ? formatTime(globalSunset) : 'N/A'}<br>
+                    <strong>Pressure:</strong> ${weatherData.pressure} (${weatherData.pressureDescription})<br>
                 `;
 
                 document.getElementById('weather-left').innerHTML = leftPodHTML;
